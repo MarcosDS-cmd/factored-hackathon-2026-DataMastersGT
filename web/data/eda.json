@@ -1,0 +1,317 @@
+{
+ "tamanos": [
+  {
+   "t": "Clientes",
+   "n": 150000
+  },
+  {
+   "t": "Quejas",
+   "n": 10332
+  },
+  {
+   "t": "Interacciones call center",
+   "n": 105485
+  },
+  {
+   "t": "Transcripciones",
+   "n": 7454
+  },
+  {
+   "t": "Encuestas",
+   "n": 32700
+  },
+  {
+   "t": "Transacciones (muestra)",
+   "n": 324345
+  }
+ ],
+ "disputas": {
+  "n": 2093,
+  "monto_prom": 2458.0,
+  "pct_sla": 21.8,
+  "dias_prom": 15.1,
+  "satisf": 3.16,
+  "n_cargo_no_reconocido": 1922.0
+ },
+ "por_categoria": [
+  {
+   "category": "Fees",
+   "n": 2095,
+   "monto_prom": 2415.0,
+   "pct_sla": 20.1,
+   "dias": 15.5
+  },
+  {
+   "category": "Transactions",
+   "n": 2093,
+   "monto_prom": 2458.0,
+   "pct_sla": 21.8,
+   "dias": 15.1
+  },
+  {
+   "category": "Service",
+   "n": 2091,
+   "monto_prom": 2582.0,
+   "pct_sla": 20.2,
+   "dias": 15.8
+  },
+  {
+   "category": "Technical",
+   "n": 2053,
+   "monto_prom": 2452.0,
+   "pct_sla": 20.2,
+   "dias": 15.3
+  },
+  {
+   "category": "Branch",
+   "n": 2000,
+   "monto_prom": 2529.0,
+   "pct_sla": 20.3,
+   "dias": 14.9
+  }
+ ],
+ "sla_por_prioridad": [
+  {
+   "priority": "Critical",
+   "n": 499,
+   "pct_sla": 20.6,
+   "dias": 15.0
+  },
+  {
+   "priority": "High",
+   "n": 1476,
+   "pct_sla": 22.4,
+   "dias": 15.2
+  },
+  {
+   "priority": "Medium",
+   "n": 5179,
+   "pct_sla": 20.3,
+   "dias": 15.3
+  },
+  {
+   "priority": "Low",
+   "n": 3178,
+   "pct_sla": 20.0,
+   "dias": 15.5
+  }
+ ],
+ "por_mes": [
+  {
+   "mes": "2026-01",
+   "n": 1912,
+   "n_transactions": 367.0,
+   "pct_sla": 19.5
+  },
+  {
+   "mes": "2026-02",
+   "n": 1706,
+   "n_transactions": 351.0,
+   "pct_sla": 22.2
+  },
+  {
+   "mes": "2026-03",
+   "n": 1962,
+   "n_transactions": 407.0,
+   "pct_sla": 19.0
+  },
+  {
+   "mes": "2026-04",
+   "n": 1863,
+   "n_transactions": 394.0,
+   "pct_sla": 21.1
+  },
+  {
+   "mes": "2026-05",
+   "n": 1825,
+   "n_transactions": 375.0,
+   "pct_sla": 22.1
+  },
+  {
+   "mes": "2026-06",
+   "n": 1064,
+   "n_transactions": 199.0,
+   "pct_sla": 18.8
+  }
+ ],
+ "estado": [
+  {
+   "status": "In Process",
+   "n": 4138
+  },
+  {
+   "status": "Open",
+   "n": 3026
+  },
+  {
+   "status": "Resolved",
+   "n": 2105
+  },
+  {
+   "status": "Escalated",
+   "n": 534
+  },
+  {
+   "status": "Closed",
+   "n": 426
+  },
+  {
+   "status": "Rejected",
+   "n": 103
+  }
+ ],
+ "canal": [
+  {
+   "canal": "Call Center",
+   "n": 5213
+  },
+  {
+   "canal": "Email",
+   "n": 2074
+  },
+  {
+   "canal": "Web",
+   "n": 1504
+  },
+  {
+   "canal": "App",
+   "n": 1030
+  },
+  {
+   "canal": "Branch",
+   "n": 401
+  },
+  {
+   "canal": "Regulator",
+   "n": 110
+  }
+ ],
+ "trazabilidad": {
+  "pct_ligadas": 0.0,
+  "n": 2093
+ },
+ "cci_por_motivo": [
+  {
+   "motivo": "Transaccional",
+   "n": 36839,
+   "pct_resuelto_1er_contacto": 91.8,
+   "pct_escalado": 10.0
+  },
+  {
+   "motivo": "Producto",
+   "n": 23370,
+   "pct_resuelto_1er_contacto": 89.7,
+   "pct_escalado": 10.0
+  },
+  {
+   "motivo": "Queja",
+   "n": 17846,
+   "pct_resuelto_1er_contacto": 43.3,
+   "pct_escalado": 10.1
+  },
+  {
+   "motivo": "Técnico",
+   "n": 15817,
+   "pct_resuelto_1er_contacto": 69.8,
+   "pct_escalado": 10.0
+  },
+  {
+   "motivo": "Comercial",
+   "n": 8440,
+   "pct_resuelto_1er_contacto": 66.1,
+   "pct_escalado": 9.7
+  },
+  {
+   "motivo": "Retención",
+   "n": 3173,
+   "pct_resuelto_1er_contacto": 61.6,
+   "pct_escalado": 9.2
+  }
+ ],
+ "intenciones_dataset": [
+  {
+   "intencion": "consulta_general",
+   "n": 7071
+  },
+  {
+   "intencion": "(vacío)",
+   "n": 383
+  }
+ ],
+ "idiomas_dataset": [
+  {
+   "idioma": "es",
+   "n": 7454
+  }
+ ],
+ "encuestas": [
+  {
+   "tipo": "CSAT",
+   "prom": 2.77,
+   "min": 1,
+   "max": 4,
+   "n": 19576
+  },
+  {
+   "tipo": "NPS",
+   "prom": 5.31,
+   "min": 2,
+   "max": 7,
+   "n": 9822
+  },
+  {
+   "tipo": "CES",
+   "prom": 2.76,
+   "min": 1,
+   "max": 4,
+   "n": 3302
+  }
+ ],
+ "calidad": {
+  "total": 10332,
+  "pct_null_monto": 67.7,
+  "pct_null_resolucion": 76.7
+ },
+ "monto_hist": [
+  {
+   "bucket": 0.0,
+   "n": 65
+  },
+  {
+   "bucket": 500.0,
+   "n": 72
+  },
+  {
+   "bucket": 1000.0,
+   "n": 78
+  },
+  {
+   "bucket": 1500.0,
+   "n": 73
+  },
+  {
+   "bucket": 2000.0,
+   "n": 64
+  },
+  {
+   "bucket": 2500.0,
+   "n": 68
+  },
+  {
+   "bucket": 3000.0,
+   "n": 65
+  },
+  {
+   "bucket": 3500.0,
+   "n": 64
+  },
+  {
+   "bucket": 4000.0,
+   "n": 76
+  },
+  {
+   "bucket": 4500.0,
+   "n": 59
+  }
+ ]
+}

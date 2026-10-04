@@ -1,0 +1,107 @@
+[
+ {
+  "id": "auto",
+  "idioma": "es",
+  "titulo": "Resolución automática",
+  "descripcion": "Cargo pequeño, cliente sin factores de riesgo → reembolso aprobado al instante",
+  "documento": "8778722",
+  "tipo_documento": "CE",
+  "nombre": "Roberto Gustavo Sánchez Romero",
+  "segmento": "Basic",
+  "pais": "Colombia",
+  "cargo": {
+   "transaction_id": "TRX-SIDQ15K95M190M5NRVE2",
+   "fecha": "2026-04-30",
+   "monto_usd": 243.63,
+   "monto_local": 974510.4,
+   "moneda": "COP",
+   "comercio": "Streaming Music",
+   "fraud_score": 17.18,
+   "is_fraud": false
+  }
+ },
+ {
+  "id": "pendiente",
+  "idioma": "es",
+  "titulo": "Revisión estándar (ambiguo)",
+  "descripcion": "Monto medio y riesgo bajo: ni se auto-aprueba ni se escala",
+  "documento": "28695942",
+  "tipo_documento": "DNI",
+  "nombre": "Manuel Rodríguez Guerrero",
+  "segmento": "Basic",
+  "pais": "México",
+  "cargo": {
+   "transaction_id": "TRX-B1JSBYMJ68P53PD8PUJM",
+   "fecha": "2026-05-11",
+   "monto_usd": 344.04,
+   "monto_local": 344.04,
+   "moneda": "USD",
+   "comercio": "Withdrawal · Branch",
+   "fraud_score": 1.57,
+   "is_fraud": false
+  }
+ },
+ {
+  "id": "escala_monto",
+  "idioma": "pt",
+  "titulo": "Escalación por monto",
+  "descripcion": "Cargo por encima de US$1,500 → handoff obligatorio a un humano",
+  "documento": "17521506",
+  "tipo_documento": "DNI",
+  "nombre": "Antonio Campos Ruiz",
+  "segmento": "Plus",
+  "pais": "México",
+  "cargo": {
+   "transaction_id": "TRX-2ABTSFUA1OWFVRC0KUNX",
+   "fecha": "2026-05-11",
+   "monto_usd": 4189.18,
+   "monto_local": 4189.18,
+   "moneda": "USD",
+   "comercio": "Transfer · ATM",
+   "fraud_score": 2.11,
+   "is_fraud": false
+  }
+ },
+ {
+  "id": "escala_fraude",
+  "idioma": "es",
+  "titulo": "Sospecha de fraude",
+  "descripcion": "Monto pequeño pero la transacción tiene score de fraude alto → equipo de fraude",
+  "documento": "8590206241",
+  "tipo_documento": "CC",
+  "nombre": "Gabriela Molina Díaz",
+  "segmento": "Basic",
+  "pais": "Colombia",
+  "cargo": {
+   "transaction_id": "TRX-B1K7QUFNHC1HBVBGNX1X",
+   "fecha": "2026-05-19",
+   "monto_usd": 209.84,
+   "monto_local": 839372.15,
+   "moneda": "COP",
+   "comercio": "Gasolinera Express",
+   "fraud_score": 79.06,
+   "is_fraud": true
+  }
+ },
+ {
+  "id": "auto_pt",
+  "idioma": "pt",
+  "titulo": "Resolução automática (PT)",
+  "descripcion": "O mesmo fluxo de resolução automática, em português",
+  "documento": "92426913",
+  "tipo_documento": "DNI",
+  "nombre": "Alberto Álvarez Giménez",
+  "segmento": "Basic",
+  "pais": "Argentina",
+  "cargo": {
+   "transaction_id": "TRX-8FNZPN2CM0RGMEC6G0Q1",
+   "fecha": "2026-05-23",
+   "monto_usd": 122.66,
+   "monto_local": 42930.57,
+   "moneda": "ARS",
+   "comercio": "Servicios Públicos",
+   "fraud_score": 12.64,
+   "is_fraud": false
+  }
+ }
+]

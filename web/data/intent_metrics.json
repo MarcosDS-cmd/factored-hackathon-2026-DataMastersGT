@@ -1,0 +1,254 @@
+{
+ "corpus": {
+  "n_frases": 1273,
+  "n_templates": 216,
+  "por_idioma": {
+   "pt": 638,
+   "es": 635
+  },
+  "por_clase": {
+   "Transactional": 239,
+   "Technical": 212,
+   "Commercial": 212,
+   "Product": 211,
+   "Complaint": 210,
+   "Retention": 189
+  },
+  "ejemplos": [
+   {
+    "text": "Quero contestar uma operacao de R$ 89,90 do dia sexta passada, podem me ajudar?",
+    "label": "Transactional",
+    "lang": "pt"
+   },
+   {
+    "text": "Oi, nao me devolveram o dinheiro de uma compra cancelada em um restaurante, por favor.",
+    "label": "Transactional",
+    "lang": "pt"
+   },
+   {
+    "text": "debitaram r$ 89,90 sem minha autorizacao",
+    "label": "Transactional",
+    "lang": "pt"
+   },
+   {
+    "text": "Oiga, me llevo mi nomina a otro banco, me pueden ayudar?",
+    "label": "Retention",
+    "lang": "es"
+   },
+   {
+    "text": "oiga, la pagina web se cae cada vez que intento pagar, me pueden ayudar?",
+    "label": "Technical",
+    "lang": "es"
+   },
+   {
+    "text": "Buenos dias. quiero dar de baja todos mis productos con ustedes. Gracias",
+    "label": "Retention",
+    "lang": "es"
+   },
+   {
+    "text": "Bom dia. qual o prazo maximo para um rédito poupanca, podem me ajudar?",
+    "label": "Product",
+    "lang": "pt"
+   },
+   {
+    "text": "oiga, estoy cerrando tods mis cuentas aqui. gracias",
+    "label": "Retention",
+    "lang": "es"
+   }
+  ]
+ },
+ "metodo_eval": "StratifiedGroupKFold (5 folds) agrupando por plantilla: el modelo siempre se evalua con formulaciones que nunca vio en entrenamiento.",
+ "baseline": {
+  "nombre": "Palabras clave (lista del notebook v1)",
+  "f1_macro": 0.451,
+  "accuracy": 0.469,
+  "n": 1273,
+  "por_clase": {
+   "Transactional": 0.416,
+   "Product": 0.583,
+   "Complaint": 0.279,
+   "Technical": 0.687,
+   "Commercial": 0.523,
+   "Retention": 0.219
+  }
+ },
+ "ml": {
+  "nombre": "TF-IDF palabras + caracteres + Regresion Logistica",
+  "f1_macro": 0.887,
+  "accuracy": 0.887,
+  "n": 1273,
+  "por_clase": {
+   "Transactional": 0.926,
+   "Product": 0.804,
+   "Complaint": 0.941,
+   "Technical": 0.966,
+   "Commercial": 0.821,
+   "Retention": 0.864
+  }
+ },
+ "por_idioma": {
+  "es": {
+   "baseline": 0.425,
+   "ml": 0.885,
+   "n": 635
+  },
+  "pt": {
+   "baseline": 0.474,
+   "ml": 0.888,
+   "n": 638
+  }
+ },
+ "folds": [
+  {
+   "ml": 0.828,
+   "baseline": 0.36
+  },
+  {
+   "ml": 0.901,
+   "baseline": 0.466
+  },
+  {
+   "ml": 0.931,
+   "baseline": 0.397
+  },
+  {
+   "ml": 0.933,
+   "baseline": 0.512
+  },
+  {
+   "ml": 0.83,
+   "baseline": 0.479
+  }
+ ],
+ "confusion_ml": {
+  "labels": [
+   "Transactional",
+   "Product",
+   "Complaint",
+   "Technical",
+   "Commercial",
+   "Retention"
+  ],
+  "matrix": [
+   [
+    232,
+    6,
+    0,
+    0,
+    1,
+    0
+   ],
+   [
+    0,
+    195,
+    0,
+    0,
+    8,
+    8
+   ],
+   [
+    7,
+    0,
+    191,
+    0,
+    6,
+    6
+   ],
+   [
+    14,
+    0,
+    0,
+    198,
+    0,
+    0
+   ],
+   [
+    0,
+    51,
+    2,
+    0,
+    158,
+    1
+   ],
+   [
+    9,
+    22,
+    3,
+    0,
+    0,
+    155
+   ]
+  ]
+ },
+ "confusion_baseline": {
+  "labels": [
+   "Transactional",
+   "Product",
+   "Complaint",
+   "Technical",
+   "Commercial",
+   "Retention"
+  ],
+  "matrix": [
+   [
+    190,
+    49,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    48,
+    163,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    170,
+    0,
+    34,
+    0,
+    0,
+    6
+   ],
+   [
+    73,
+    28,
+    0,
+    111,
+    0,
+    0
+   ],
+   [
+    113,
+    24,
+    0,
+    0,
+    75,
+    0
+   ],
+   [
+    81,
+    84,
+    0,
+    0,
+    0,
+    24
+   ]
+  ]
+ },
+ "deteccion_idioma": {
+  "accuracy": 0.9969
+ },
+ "v1": {
+  "nota": "Version anterior: 144 frases, split aleatorio (con fuga de plantillas)",
+  "baseline": 0.749,
+  "ml": 0.745,
+  "es": 0.861,
+  "pt": 0.657
+ },
+ "mejora_vs_baseline": 0.436
+}

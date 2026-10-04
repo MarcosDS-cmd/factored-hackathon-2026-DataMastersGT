@@ -1,0 +1,13 @@
+# Agent + website backend
+fastapi>=0.110
+uvicorn[standard]>=0.29
+duckdb>=1.0
+pandas>=2.0
+numpy>=1.26
+scikit-learn>=1.4   # with a version other than 1.9.1 the models retrain themselves in memory on startup
+joblib>=1.3
+# LLM providers (install the one you use)
+openai>=1.40
+anthropic>=0.40
+# notebooks
+jupyter

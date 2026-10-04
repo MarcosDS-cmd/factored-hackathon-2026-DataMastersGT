@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Disputas con límites · DataMastersGT</title>
+<meta name="description" content="Agente de IA para disputas por cargos no reconocidos: conversa en español y portugués, y aplica límites de aprobación escritos en código. Factored AI & Data Hackathon 2026.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230e2b2a'/%3E%3Cpath d='M9 17l5 5 9-11' stroke='%239cc8bf' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,600..800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#inicio" aria-label="Inicio">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M9 17l5 5 9-11" stroke="var(--guilloche)" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+      Disputas con límites
+    </a>
+    <nav class="nav" aria-label="Secciones">
+      <a href="#problema">El problema</a>
+      <a href="#demo">Demo en vivo</a>
+      <a href="#decide">Cómo decide</a>
+      <a href="#resultados">Resultados</a>
+      <a href="#modelos">Modelos</a>
+      <a href="#limites">Limitaciones</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Cambiar tema claro u oscuro">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="inicio">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <h1>Un cargo que no reconoces, resuelto antes de colgar.</h1>
+        <p class="lede">Un agente de IA para disputas por cargos no reconocidos. Conversa en español y portugués y elige qué herramienta usar, pero los límites de aprobación están escritos en código: ningún mensaje del cliente ni del modelo los puede mover.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#demo">Probar el agente</a>
+          <a class="btn btn-ghost" href="#resultados">Ver resultados</a>
+        </div>
+        <p class="facts" id="heroFacts" aria-live="polite"></p>
+      </div>
+
+      <figure class="statement" aria-label="Ejemplo: un cliente disputa un cargo y el agente lo resuelve">
+        <svg class="guil" id="guilHero" aria-hidden="true"></svg>
+        <div class="st-head"><strong>Estado de cuenta</strong><span>Roberto S. · Colombia · cliente real del dataset</span></div>
+        <ul class="st-rows" id="stRows"></ul>
+        <div class="st-trace" id="stTrace" aria-live="polite"></div>
+        <div class="st-foot">
+          <p class="small" id="stCaption">El agente verifica identidad, ubica el cargo, calcula el riesgo y abre el caso.</p>
+          <div class="stamp" id="stStamp">Reembolso aprobado<small>US$243.63</small></div>
+        </div>
+        <div style="padding: 0 22px 16px"><button class="replay" id="stReplay" type="button">Repetir</button></div>
+      </figure>
+    </div>
+  </section>
+
+  <!-- PROBLEMA -->
+  <section class="band" id="problema">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="kicker">El problema, con datos del reto</p>
+        <h2>El banco ya recibe miles de disputas y su triage no protege a nadie.</h2>
+        <p class="lede">Analizamos las tablas de quejas, interacciones de call center, transcripciones y transacciones de 2026. Cuatro hallazgos definieron el proyecto.</p>
+      </div>
+      <div class="findings" id="findings"></div>
+      <div class="two">
+        <div class="panel">
+          <h3>La prioridad asignada no cambia nada</h3>
+          <p class="sub">% de quejas que incumplen el SLA, según la prioridad que les puso el banco</p>
+          <div class="chart" id="chSla"></div>
+          <p class="take" id="takeSla"></p>
+        </div>
+        <div class="panel">
+          <h3>Las quejas son las que menos se resuelven al primer contacto</h3>
+          <p class="sub">% de interacciones de call center resueltas en el primer contacto, por motivo</p>
+          <div class="chart" id="chCci"></div>
+          <p class="take">Las quejas se resuelven a menos de la mitad de la tasa del resto: son las que terminan convertidas en disputas formales.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEMO -->
+  <section class="band alt" id="demo">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="kicker">Demo en vivo</p>
+        <h2>Habla con el agente como si fueras el cliente.</h2>
+        <p class="lede">Elige un cliente real del dataset y usa las sugerencias o escribe libremente. A la derecha ves lo mismo que vería un auditor: cada herramienta que se ejecutó, cuánto tardó y qué decidió el código.</p>
+      </div>
+
+      <div class="demo">
+        <div>
+          <div class="personas" id="personas" role="group" aria-label="Clientes de prueba"></div>
+          <div class="ctrl-row" style="margin-top:14px">
+            <span>Canal</span>
+            <div class="seg" id="segCanal" role="group" aria-label="Canal de entrada">
+              <button type="button" data-v="App" aria-pressed="true">App</button>
+              <button type="button" data-v="Regulator" aria-pressed="false">Regulador</button>
+            </div>
+          </div>
+          <div class="ctrl-row">
+            <span>Motor</span>
+            <div class="seg" id="segMotor" role="group" aria-label="Motor de conversación">
+              <button type="button" data-v="llm" aria-pressed="false">LLM</button>
+              <button type="button" data-v="reglas" aria-pressed="true">Sin LLM</button>
+            </div>
+          </div>
+          <p class="small" id="motorNote" style="margin-top:8px"></p>
+        </div>
+
+        <div class="chatbox">
+          <div class="chat-head">
+            <span class="who" id="chatWho">Asistente de disputas</span>
+            <span class="mode" id="modeBadge">conectando…</span>
+          </div>
+          <div class="msgs" id="msgs" aria-live="polite"></div>
+          <div class="chips" id="chips" aria-label="Mensajes sugeridos"></div>
+          <form class="composer" id="composer">
+            <label class="sr-only" for="inp">Mensaje</label>
+            <textarea id="inp" rows="1" placeholder="Escribe como cliente… (Enter para enviar)"></textarea>
+            <button class="btn btn-primary" id="sendBtn" type="submit">Enviar</button>
+          </form>
+        </div>
+
+        <div class="file">
+          <div class="tabs" role="tablist" aria-label="Expediente">
+            <button role="tab" aria-selected="true" aria-controls="tpTraza" id="tbTraza" type="button">Traza<span class="count" id="cntTraza"></span></button>
+            <button role="tab" aria-selected="false" aria-controls="tpCaso" id="tbCaso" type="button">Caso</button>
+            <button role="tab" aria-selected="false" aria-controls="tpHand" id="tbHand" type="button">Agente humano<span class="count" id="cntHand"></span></button>
+          </div>
+          <div class="tabpanel" role="tabpanel" id="tpTraza" aria-labelledby="tbTraza"></div>
+          <div class="tabpanel" role="tabpanel" id="tpCaso" aria-labelledby="tbCaso" hidden></div>
+          <div class="tabpanel" role="tabpanel" id="tpHand" aria-labelledby="tbHand" hidden></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMO DECIDE -->
+  <section class="band" id="decide">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="kicker">Cómo decide</p>
+        <h2>El modelo conversa. La decisión la toma el código.</h2>
+        <p class="lede">El LLM decide qué herramienta llamar y con qué argumentos. La herramienta busca el monto real en los registros del banco, recalcula el riesgo con datos propios y aplica la política. Si el modelo pide algo fuera de los límites, recibe un rechazo estructurado.</p>
+      </div>
+
+      <div class="ruler" aria-label="Política por monto">
+        <div class="ruler-bar">
+          <div class="z-ok">Se aprueba sola</div>
+          <div class="z-rev">Revisión estándar (o humano si el riesgo es alto)</div>
+          <div class="z-esc">Siempre a un humano</div>
+        </div>
+        <div class="ruler-ticks"><span>US$0</span><span>US$300</span><span>US$1,500+</span></div>
+      </div>
+      <div class="overrides">
+        <div><b>Sospecha de fraude</b>Si la transacción está marcada como fraude o su score es ≥ 70, va al equipo de fraude aunque sea de US$10.</div>
+        <div><b>Canal regulador</b>Una queja que entra por el regulador siempre escala. El canal sale de la sesión, no de lo que diga el modelo.</div>
+        <div><b>Riesgo alto + monto medio</b>Con riesgo alto y más de US$300 escala. El riesgo combina monto, reincidencia, categoría, canal y valor del cliente.</div>
+      </div>
+
+      <div class="stack">
+        <div class="panel">
+          <h3>Simula un caso</h3>
+          <p class="sub">La misma regla que aplica <code>abrir_caso_disputa</code>, recalculada en tu navegador</p>
+          <div class="sim">
+            <div>
+              <div class="amount num" id="simAmt">US$250</div>
+              <label for="simRange" class="sr-only">Monto del cargo</label>
+              <input type="range" id="simRange" min="10" max="4000" step="10" value="250">
+              <label><input type="checkbox" id="simSeg"> Cliente Premium o Plus</label>
+              <label><input type="checkbox" id="simRep"> Ya tiene quejas anteriores</label>
+              <label><input type="checkbox" id="simReg"> Llega por el canal regulador</label>
+              <label><input type="checkbox" id="simFraud"> Transacción con score de fraude ≥ 70</label>
+            </div>
+            <div class="sim-out" id="simOut" aria-live="polite"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Ataques al agente, bloqueados en código</h3>
+          <p class="sub" id="secSub">Pruebas automáticas que simulan un modelo manipulado o que alucina</p>
+          <ul class="checks" id="checks"></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTADOS -->
+  <section class="band alt" id="resultados">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="kicker">Resultados</p>
+        <h2>Las métricas del reto, medidas sobre conversaciones completas.</h2>
+        <p class="lede" id="resLede"></p>
+      </div>
+      <div class="source-row" id="sourceRow"></div>
+      <div class="kpis" id="kpis"></div>
+      <div class="two">
+        <div class="panel">
+          <h3>Resolución segura y contención por idioma</h3>
+          <p class="sub">% de conversaciones</p>
+          <div class="legend" id="lgLang"></div>
+          <div class="chart" id="chLang"></div>
+        </div>
+        <div class="panel">
+          <h3>Latencia por turno</h3>
+          <p class="sub">Milisegundos desde que llega el mensaje hasta la respuesta, p50 y p95</p>
+          <div class="legend" id="lgLat"></div>
+          <div class="chart" id="chLat"></div>
+          <p class="take" id="takeLat"></p>
+        </div>
+      </div>
+      <div class="two">
+        <div class="panel">
+          <h3>Lo esperado contra lo que hizo el agente</h3>
+          <p class="sub">Filas: resultado que exige la política. Columnas: resultado obtenido.</p>
+          <div id="matrix" style="overflow-x:auto"></div>
+        </div>
+        <div class="panel">
+          <h3>Por escenario</h3>
+          <p class="sub">Los 3 casos obligatorios y las pruebas adicionales</p>
+          <div id="perType" style="overflow-x:auto"></div>
+        </div>
+      </div>
+      <p class="note" style="margin-top:28px" id="resNote"></p>
+    </div>
+  </section>
+
+  <!-- MODELOS -->
+  <section class="band" id="modelos">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="kicker">Modelos propios</p>
+        <h2>Dos modelos, cada uno comparado contra una regla simple.</h2>
+        <p class="lede">El clasificador de intención entiende cada mensaje en español y portugués. El modelo de riesgo le da al agente humano una segunda opinión. Ninguno de los dos aprueba nada: eso lo decide la política.</p>
+      </div>
+      <div class="two" style="margin-top:0">
+        <div class="panel">
+          <h3>Clasificador de intención</h3>
+          <p class="sub" id="intSub"></p>
+          <div class="legend" id="lgInt"></div>
+          <div class="chart" id="chInt"></div>
+          <div class="story" id="intStory"></div>
+          <form class="try" id="tryForm">
+            <label class="sr-only" for="tryInp">Frase para clasificar</label>
+            <input id="tryInp" value="Olá, apareceu uma cobrança estranha no meu cartão" autocomplete="off">
+            <button class="btn btn-ghost" type="submit">Clasificar</button>
+          </form>
+          <div class="try-out" id="tryOut" aria-live="polite"></div>
+        </div>
+        <div class="panel">
+          <h3>Modelo de riesgo</h3>
+          <p class="sub" id="riskSub"></p>
+          <div class="legend" id="lgRisk"></div>
+          <div class="chart" id="chRisk"></div>
+          <h3 style="font-size:1rem;margin-top:22px">Qué variables pesan más</h3>
+          <p class="sub">Importancia en el Random Forest, top 8</p>
+          <div class="chart" id="chImp"></div>
+          <p class="take" id="riskTake"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIMITACIONES -->
+  <section class="band alt" id="limites">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="kicker">Limitaciones</p>
+        <h2>Lo que no está resuelto, dicho sin rodeos.</h2>
+      </div>
+      <div class="limits">
+        <div><b>El dataset es 100% español</b>Las 7,454 transcripciones vienen en español. Los casos en portugués los generó el equipo, y los clientes son de México, Colombia y Argentina.</div>
+        <div><b>El riesgo es una regla de negocio, no una etiqueta del banco</b>Las columnas de resultado del dataset (SLA, escalación, prioridad) no se pueden aprender a partir de las variables (AUC ≈ 0.50). Definimos el riesgo con una regla documentada y el modelo aprende a reproducirla y generalizarla.</div>
+        <div><b>El corpus de intención es sintético</b>Son 1,273 frases de 216 plantillas, evaluadas con plantillas que el modelo nunca vio. Los mensajes reales son más desordenados: hay que revalidar con conversaciones reales antes de producción.</div>
+        <div><b>El cliente de la evaluación es simulado</b>Las conversaciones usan clientes y cargos reales, pero el "cliente" responde con frases programadas. Mide si las reglas y el flujo son correctos, no qué tan natural es la conversación.</div>
+        <div><b>Datos con huecos</b>El 57% de las transacciones no trae monto en USD (todas las USD y algunas COP/ARS): lo completamos con el tipo de cambio observado (COP 4,000 y ARS 350). El 68% de las quejas no tiene monto reclamado.</div>
+        <div><b>"Hoy" es el 18 de junio de 2026</b>Es la última fecha de la muestra de transacciones. Las consultas de "últimos 30 días" se calculan desde ahí.</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <svg class="guil" id="guilFoot" aria-hidden="true"></svg>
+  <div class="wrap">
+    <p><b>DataMastersGT</b> · Factored AI &amp; Data Hackathon 2026</p>
+    <p><a href="https://github.com/MarcosDS-cmd/factored-hackathon-2026-DataMastersGT">Código en GitHub</a> · <a href="/api/docs">API</a></p>
+  </div>
+</footer>
+
+<div class="tip" id="tip" role="tooltip"></div>
+<script src="assets/app.js"></script>
+</body>
+</html>

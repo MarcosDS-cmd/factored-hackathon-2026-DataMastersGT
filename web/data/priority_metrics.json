@@ -1,0 +1,97 @@
+{
+ "diagnostico_etiquetas_banco": {
+  "auc_prioridad_vs_sla": 0.509,
+  "pct_sla_incumplido_por_prioridad": {
+   "Critical": 20.6,
+   "High": 22.4,
+   "Low": 20.0,
+   "Medium": 20.3
+  },
+  "nota": "AUC ~0.5: la prioridad asignada por el banco no predice el incumplimiento de SLA."
+ },
+ "split": {
+  "tipo": "temporal 80/20",
+  "corte": "2026-05-14",
+  "n_train": 8265,
+  "n_test": 2067
+ },
+ "tasa_alto_riesgo": {
+  "v1": 0.098,
+  "v2": 0.198
+ },
+ "umbral_monto_mediana": 2470.73,
+ "v1": {
+  "baseline_f1": 0.637,
+  "ml_f1": 0.74,
+  "confusion_baseline": [
+   [
+    1639,
+    229
+   ],
+   [
+    103,
+    96
+   ]
+  ],
+  "confusion_ml": [
+   [
+    1663,
+    205
+   ],
+   [
+    46,
+    153
+   ]
+  ]
+ },
+ "v2": {
+  "baseline_f1": 0.623,
+  "ml_f1": 0.792,
+  "auc_ml": 0.899
+ },
+ "importancia_variables": [
+  {
+   "feature": "is_repeat_complainer",
+   "importancia": 0.2332
+  },
+  {
+   "feature": "claimed_amount",
+   "importancia": 0.196
+  },
+  {
+   "feature": "claimed_amount_missing",
+   "importancia": 0.0768
+  },
+  {
+   "feature": "category_Fees",
+   "importancia": 0.0595
+  },
+  {
+   "feature": "category_Transactions",
+   "importancia": 0.0522
+  },
+  {
+   "feature": "subcategory_Cobro indebido",
+   "importancia": 0.0494
+  },
+  {
+   "feature": "subcategory_Cargo no reconocido",
+   "importancia": 0.0492
+  },
+  {
+   "feature": "category_Branch",
+   "importancia": 0.0439
+  },
+  {
+   "feature": "reception_channel_Regulator",
+   "importancia": 0.0431
+  },
+  {
+   "feature": "category_Technical",
+   "importancia": 0.0369
+  }
+ ],
+ "promovidos_por_valor_cliente": 1430,
+ "n_total": 10332,
+ "limitacion": "La etiqueta de riesgo es una regla de negocio documentada por el equipo (con ruido), no una etiqueta historica validada por el banco: sla_breached / was_escalated / priority no tienen relacion aprendible con las variables (AUC ~0.50)."
+}

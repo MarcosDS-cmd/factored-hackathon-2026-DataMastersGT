@@ -1,0 +1,12 @@
+# One-click deploy on Render (render.com -> New -> Blueprint -> this repo). Set OPENAI_API_KEY in the dashboard.
+services:
+  - type: web
+    name: disputas-datamastersgt
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini

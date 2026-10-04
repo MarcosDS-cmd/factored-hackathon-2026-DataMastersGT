@@ -2,71 +2,70 @@
 Agent loop connected to the Claude (Anthropic) API — Factored AI & Data Hackathon 2026
 Team DataMastersGT
 
-Equivalent version of gemini_loop.py but using Claude's tool use format
-(content blocks with type="tool_use" / type="tool_result") instead of Gemini's
-(function_call / function_response).
+Equivalent to gemini_loop.py / openai_loop.py but using Claude's tool use format
+(content blocks with type="tool_use" / type="tool_result").
 
-The permissions logic (dispatch_tool_call) is EXACTLY THE SAME as in
-gemini_loop.py - it is imported from the same place. The only thing that changes between the two
-files is how each API is talked to, not how permissions are decided. This is on
-purpose: permissions should not depend on which model is used.
+The permissions logic (dispatch_tool_call) is EXACTLY THE SAME — it comes from agent_core.py.
+Permissions should not depend on which model is used.
 
 Requires: pip install anthropic
           export ANTHROPIC_API_KEY=your_key
+          (optional) export ANTHROPIC_MODEL=claude-sonnet-5-5
 """
 
 import os
-from gemini_loop import TOOL_DECLARATIONS, SYSTEM_INSTRUCTION, EstadoConversacion, dispatch_tool_call
+import time
+
+from agent_core import TOOL_DECLARATIONS, SYSTEM_INSTRUCTION, EstadoConversacion, dispatch_tool_call, resultado_para_modelo
+
+MODELO_DEFAULT = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-5-5")
 
 
 def _a_formato_claude(tool_decl: dict) -> dict:
-    """The tools in gemini_loop.py use 'parameters' (JSON schema) -
-    Claude uses the same JSON schema but under the 'input_schema' key."""
-    return {
-        "name": tool_decl["name"],
-        "description": tool_decl["description"],
-        "input_schema": tool_decl["parameters"],
-    }
+    """Claude uses the same JSON schema but under the 'input_schema' key."""
+    return {"name": tool_decl["name"], "description": tool_decl["description"], "input_schema": tool_decl["parameters"]}
 
 
 CLAUDE_TOOLS = [_a_formato_claude(t) for t in TOOL_DECLARATIONS]
+_CLIENT = None
 
 
-def correr_conversacion_real(mensaje_usuario: str, estado: EstadoConversacion,
-                              historial=None, modelo="claude-sonnet-5"):
-    import anthropic
+def _cliente():
+    global _CLIENT
+    if _CLIENT is None:
+        import anthropic
+        api_key = os.environ.get("ANTHROPIC_API_KEY")
+        if not api_key:
+            raise RuntimeError("ANTHROPIC_API_KEY is missing. export ANTHROPIC_API_KEY=your_key")
+        _CLIENT = anthropic.Anthropic(api_key=api_key, timeout=30)
+    return _CLIENT
 
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    if not api_key:
-        raise RuntimeError("ANTHROPIC_API_KEY is missing from the environment. export ANTHROPIC_API_KEY=your_key")
 
-    client = anthropic.Anthropic(api_key=api_key)
+def correr_conversacion_real(mensaje_usuario: str, estado: EstadoConversacion, historial=None, modelo=None):
+    modelo = modelo or MODELO_DEFAULT
+    client = _cliente()
     mensajes = historial or []
     mensajes.append({"role": "user", "content": mensaje_usuario})
 
     for _ in range(8):  # safety limit
-        resp = client.messages.create(
-            model=modelo,
-            max_tokens=1024,
-            system=SYSTEM_INSTRUCTION,
-            tools=CLAUDE_TOOLS,
-            messages=mensajes,
-        )
-        mensajes.append({"role": "assistant", "content": resp.content})
-
+        t0 = time.perf_counter()
+        resp = client.messages.create(model=modelo, max_tokens=1024, system=SYSTEM_INSTRUCTION,
+                                      tools=CLAUDE_TOOLS, messages=mensajes)
+        ms = (time.perf_counter() - t0) * 1000
         bloques_tool = [b for b in resp.content if b.type == "tool_use"]
+        estado.registrar("llm", proveedor="anthropic", modelo=modelo, ms=round(ms, 1),
+                         tokens_in=resp.usage.input_tokens, tokens_out=resp.usage.output_tokens,
+                         tool_calls=[b.name for b in bloques_tool])
+        mensajes.append({"role": "assistant", "content": [b.model_dump(exclude_none=True) for b in resp.content]})
+
         if not bloques_tool:
-            texto = "".join(b.text for b in resp.content if b.type == "text")
-            return texto, mensajes
+            return "".join(b.text for b in resp.content if b.type == "text"), mensajes
 
         resultados_tool = []
         for b in bloques_tool:
             resultado = dispatch_tool_call(b.name, b.input, estado)
-            resultados_tool.append({
-                "type": "tool_result",
-                "tool_use_id": b.id,
-                "content": str(resultado),
-            })
+            resultados_tool.append({"type": "tool_result", "tool_use_id": b.id,
+                                    "content": resultado_para_modelo(resultado)})
         mensajes.append({"role": "user", "content": resultados_tool})
 
     return "(step limit reached without a final answer)", mensajes
