@@ -3,6 +3,13 @@
 
 El modelo (GPT, Claude o Gemini) conversa con el cliente y decide qué herramienta usar. **Los límites de aprobación viven en el código** (`agents/tools.py`), no en el prompt: ningún mensaje del cliente ni del modelo los puede mover. Si no hay API key o el LLM falla, responde un agente determinístico con las mismas herramientas y permisos. La demo nunca se cae.
 
+## Cómo recorrer este repo
+
+1. **El problema y los modelos**: `notebooks/` en orden (01 → 02 → 03).
+2. **El agente y sus permisos**: `agents/tools.py` (los límites) y `agents/agent_core.py` (la puerta de permisos y la auditoría).
+3. **La evidencia**: `eval/` (métricas del reto y pruebas de seguridad).
+4. **La demo**: la web en `web/`, servida por `api/main.py`.
+
 ## Ejecutar la web en local
 
 ```bash
@@ -27,7 +34,10 @@ La web tiene seis secciones: el problema (EDA), una **demo en vivo** con traza d
 | `eval/security_tests.py` | 17 ataques de un modelo manipulado contra la puerta de permisos. |
 | `api/main.py` | Backend FastAPI. La API key solo existe en el servidor. |
 | `web/` | El sitio, en HTML/CSS/JS sin build, y los datos que muestra (`web/data/*.json`). |
-| `01–03_*.ipynb` | EDA, modelo de riesgo y clasificador de intención, ejecutados con sus resultados. |
+| `notebooks/` | `01_eda`, `02_priority_model`, `03_intent_classifier`: el análisis y los modelos, ejecutados con sus resultados. |
+| `hackathon-data/` | Muestra del dataset del reto (CSV particionados por fecha). |
+| `data/subset/` | Las tablas que usa el agente, ya limpias, en parquet (16 MB, para el deploy). |
+| `scripts/` | Utilidades: clientes de la demo, datos del EDA para la web, construir el subset. |
 
 ## Reproducir los resultados
 
