@@ -2,7 +2,9 @@
 
 **Factored AI & Data Hackathon 2026** · Team **DataMastersGT** (Guatemala 🇬🇹) — Marcos Diaz & Daniel Machic · An AI agent that resolves unrecognized-charge disputes for a bank, in **Spanish and Portuguese**, where **approval limits live in code, not in the prompt**.
 
-**Live demo:** https://disputas-datamastersgt.onrender.com  ·  **Customer portal (English):** https://disputas-datamastersgt.onrender.com/portal
+> **Note on contributors:** the GitHub accounts [MarcosDiaz1409](https://github.com/MarcosDiaz1409) and [MarcosDS-cmd](https://github.com/MarcosDS-cmd) belong to the **same person, Marcos Diaz**. Some commits were made from his institutional account before he switched to his personal one. They are not two different contributors.
+
+**Live demo:** https://disputas-datamastersgt.onrender.com  ·  **Customer portal (Spanish/Portuguese, with English subtitles):** https://disputas-datamastersgt.onrender.com/portal
 
 > The free Render tier sleeps when idle. The first request can take ~30 s to wake the service.
 
@@ -14,7 +16,7 @@ A language model talks to the customer and decides *which tool to call and with 
 
 | Rule | Value |
 |---|---|
-| Auto-approval | amount ≤ US$300 and low risk |
+| Auto-approval | amount ≤ US$300, no fraud signal and not the regulator channel (risk only matters above US$300) |
 | Mandatory human escalation | amount ≥ US$1,500 |
 | Suspected fraud (`is_fraud` or `fraud_score ≥ 70`) | always escalates |
 | Regulator channel | always escalates |
@@ -24,6 +26,8 @@ A language model talks to the customer and decides *which tool to call and with 
 
 Amounts, risk, repeat-complainer status and channel are read from bank data and the server-side session, **never from what the model or the customer claims**. If there is no API key or the LLM fails, a deterministic agent with the same tools and permissions answers, so the demo never goes down.
 
+**How risk is scored.** Each case gets a score that adds points for: a claimed amount above the typical claim, prior complaints on record, a high-severity category, the regulator channel, and a high-value customer. Two points or more is *high risk*, and high risk above US$300 always goes to a human. A Random Forest gives the human agent a second opinion on the same case; it never approves anything.
+
 ---
 
 ## The three case types (try them in the live demo)
@@ -32,9 +36,18 @@ The demo's *Demo accounts* section preloads real customers from the dataset, one
 
 | Case | Customer (document · name) | What happens |
 |---|---|---|
-| **1. Normal resolution** | CE 8778722 · Roberto Gustavo Sánchez Romero (ES) | US$243.63 charge, low risk → refund auto-approved |
+| **1. Normal resolution** | CE 8778722 · Roberto Gustavo Sánchez Romero (ES) | US$243.63 charge, under the US$300 limit → refund auto-approved |
 | **2. Ambiguous** | DNI 28695942 · Manuel Rodríguez Guerrero (ES) | US$344.04, low risk: above the auto-approval limit but not escalation-worthy → standard review |
 | **3. Human escalation** | DNI 17521506 · Antonio Campos Ruiz (PT) | US$4,189.18 → mandatory handoff to a human with full context |
+
+**More test accounts.** Any of the 150,000 customers in `customers.csv` can sign in with document + first name + one surname; there is no separate user table to create. These Active customers also have a recent purchase to dispute:
+
+| Document | Name | Country |
+|---|---|---|
+| DNI 88019990 | Gabriel Rodríguez Castro | México |
+| DNI 33191857 | Claudia Paola Delgado Guerrero | México |
+| DNI 18373698 | Marta García Álvarez | Argentina |
+| CE 8215107 | Lucas Cárdenas Molina | Colombia |
 
 Also available: suspected fraud (CC 8590206241 · Gabriela Molina Díaz, fraud score 79 → fraud team) and automatic resolution in Portuguese (DNI 92426913 · Alberto Álvarez Giménez).
 
@@ -151,6 +164,9 @@ What a bank would still need:
 | Add languages beyond Spanish and Portuguese | The architecture (classifier + agent) is not tied to a language: it grows by adding training corpus, not by redesigning. |
 | Move risk scoring to a periodic retraining pipeline | So the model does not go stale when fraud or dispute patterns change. |
 | Instrument cost, latency (p50/p95) and error rate in production | The challenge asks us to measure these; here we show they work, next is tracking them over time. |
+| Detect abusive or friendly-fraud disputes | Persist every case and feed it back into risk: escalate customers with 3+ disputes in 30 days, and check for earlier payments to the same merchant before auto-approving. |
+| Real user onboarding and authentication | The demo signs in with document + name against the customer file. A real deployment connects the bank's own authentication (OTP, biometrics, app login) and creates or syncs customers from the core system, instead of adding users by hand. |
+| Persist disputes and customers in a database | Today cases live in the session; a production version stores users, cases and statuses so history survives sign-ins. |
 | Add concurrency and load testing | Tests so far run one conversation at a time; we have not measured behavior with many simultaneous customers. |
 | Persist a full audit log of every agent action | Today the system explains each decision in the trace; regulators need a durable record. |
 | Run more aggressive prompt-injection tests | We proved amount limits cannot be bypassed; we have not tried more sophisticated attacks (e.g. extracting other customers' data through indirect paths). |
@@ -175,6 +191,13 @@ What a bank would still need:
 - 57% of transactions have no `amount_usd`; we complete it with the observed exchange rate.
 - The simulated customer used in the evaluation measures rules and flow, not how natural the conversation feels.
 - Reference date for all calculations is 2026-06-18.
+- **Friendly fraud is not detected.** If a customer really made a purchase and disputes it anyway, the data cannot tell. What limits the damage today: automatic approval is capped at US$300 per case and requires no fraud signal; risk goes up with prior complaints on record (read from bank data, never from what the customer says); each charge can be disputed once; and every decision leaves an audit trace.
+- **Who can sign in.** Sign-in checks document + first name + at least one surname, and the customer must be *Active* (about 22,000 inactive, suspended or closed customers are rejected). It is a demo-level check, not strong authentication.
+- **Not every customer has something to dispute.** Only charges from the last 90 days (relative to 2026-06-18) can be disputed, and only ~10,900 of the 127,700 Active customers have a purchase in the sample. The others sign in and see an empty list.
+- **Customers are not created in the demo.** We use the 150,000 existing customers instead of adding new users; creating users belongs to the bank's core system (see Next steps).
+- **Local currencies.** Charges in ARS and COP are converted to USD with the observed exchange rate so the US$300 and US$1,500 limits apply; amounts may display in local currency.
+- **Portuguese is selected with the language switcher.** The dataset has no Brazilian customers, so Portuguese is validated on synthetic data only.
+- **Repeat-dispute history is read from the dataset only.** Cases opened by the agent are not yet fed back into the repeat-complainer signal, and the "one dispute per charge" guard lives in the session, so it resets if the customer signs in again. A production version must persist cases.
 
 ---
 
@@ -193,8 +216,7 @@ Fixes made during the final review, kept here because they affect trust in the r
 **DataMastersGT** · Guatemala 🇬🇹
 
 - Marcos Diaz ([@MarcosDS-cmd](https://github.com/MarcosDS-cmd))
-- Daniel Machic
+- Daniel Machic ([@mac2218](https://github.com/mac2218))
 
-> **Note on contributors:** the GitHub accounts [MarcosDiaz1409](https://github.com/MarcosDiaz1409) and [MarcosDS-cmd](https://github.com/MarcosDS-cmd) belong to the **same person, Marcos Diaz**. Some commits were made from his institutional account before he switched to his personal one. They are not two different contributors.
 
 *Factored AI & Data Hackathon 2026*
