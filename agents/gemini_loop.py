@@ -1,33 +1,33 @@
 """
-Loop del agente conectado a Gemini API — Factored AI & Data Hackathon 2026
-Equipo DataMastersGT
+Agent loop connected to the Gemini API — Factored AI & Data Hackathon 2026
+Team DataMastersGT
 
-NOTA (Oct 3): TOOL_DECLARATIONS, SYSTEM_INSTRUCTION, EstadoConversacion y dispatch_tool_call
-se movieron a agent_core.py (compartido por todos los proveedores) y aqui se re-exportan.
+NOTE (Oct 3): TOOL_DECLARATIONS, SYSTEM_INSTRUCTION, EstadoConversacion and dispatch_tool_call
+were moved to agent_core.py (shared by all providers) and are re-exported here.
 
-QUE HACE ESTE ARCHIVO:
-Conecta el modelo (Gemini) con las tools de tools.py usando function calling / tool use.
-El modelo decide QUE tool llamar y con que argumentos de negocio, pero el DESPACHO
-(dispatch_tool_call) es codigo Python normal que:
-  1) Nunca deja que el modelo le pase directamente el objeto de riesgo o los datos del
-     cliente - los recalcula/los trae el propio codigo desde la sesion/la base de datos.
-     Esto cierra un vector de inyeccion de prompt que no habiamos cerrado antes: que el
-     modelo "declare" un riesgo bajo para forzar un auto-aprobado.
-  2) Nunca ejecuta una tool sensible sin pasar por requiere_sesion_valida (ya en tools.py).
-  3) Regresa SIEMPRE un resultado estructurado (ok/mensaje) al modelo, nunca una excepcion
-     cruda - el modelo tiene que poder leer un rechazo y explicarselo al cliente.
+WHAT THIS FILE DOES:
+It connects the model (Gemini) to the tools in tools.py using function calling / tool use.
+The model decides WHICH tool to call and with which business arguments, but the DISPATCH
+(dispatch_tool_call) is plain Python code that:
+  1) Never lets the model hand it the risk object or the customer data directly - the code
+     itself recalculates them / fetches them from the session and the database.
+     This closes a prompt-injection vector we had not closed before: the model
+     "declaring" a low risk to force an auto-approval.
+  2) Never runs a sensitive tool without going through requiere_sesion_valida (already in tools.py).
+  3) ALWAYS returns a structured result (ok/message) to the model, never a raw exception
+     - the model must be able to read a rejection and explain it to the customer.
 
-MODO REAL vs MODO MOCK:
-  - modo="real": usa la API de Gemini de verdad. Necesita GEMINI_API_KEY en el entorno.
-    Instalar antes: pip install google-genai
-  - modo="mock": no llama a ningun modelo. Un "modelo simulado" (FakeModel) hace las
-    mismas decisiones de function-calling que se espera que Gemini haga, siguiendo un
-    guion fijo por caso de prueba. Esto existe SOLO porque el entorno donde se construyo
-    este proyecto bloquea la red hacia generativelanguage.googleapis.com - no es un
-    sustituto de probar con la API real, es una forma de probar que el despacho de tools
-    (la parte con los permisos, que es el 100% del riesgo real) funciona correctamente
-    ANTES de gastar llamadas reales a la API.
-  Correr con GEMINI_API_KEY configurada usa automaticamente modo real.
+REAL MODE vs MOCK MODE:
+  - mode="real": uses the real Gemini API. Needs GEMINI_API_KEY in the environment.
+    Install first: pip install google-genai
+  - mode="mock": calls no model. A "simulated model" (FakeModel) makes the same
+    function-calling decisions Gemini is expected to make, following a fixed script
+    per test case. It exists ONLY because the environment where this project was built
+    blocks the network to generativelanguage.googleapis.com - it is not a substitute for
+    testing with the real API, it is a way to check that the tool dispatch (the part that
+    holds the permissions, which is 100% of the real risk) works correctly BEFORE
+    spending real API calls.
+  Running with GEMINI_API_KEY set automatically uses real mode.
 """
 
 import os
@@ -40,7 +40,7 @@ from agent_core import (  # noqa: F401  (re-exported for claude_loop / openai_lo
 
 
 # ---------------------------------------------------------------------------
-# MODO REAL - requiere GEMINI_API_KEY y `pip install google-genai`
+# REAL MODE - requires GEMINI_API_KEY and `pip install google-genai`
 # ---------------------------------------------------------------------------
 def correr_conversacion_real(mensaje_usuario: str, estado: EstadoConversacion, historial=None, modelo="gemini-2.0-flash"):
     from google import genai
@@ -49,8 +49,8 @@ def correr_conversacion_real(mensaje_usuario: str, estado: EstadoConversacion, h
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         raise RuntimeError(
-            "Falta GEMINI_API_KEY en el entorno. Consiguela gratis en https://aistudio.google.com/apikey "
-            "y corre: export GEMINI_API_KEY=tu_key"
+            "GEMINI_API_KEY is missing from the environment. Get one for free at https://aistudio.google.com/apikey "
+            "and run: export GEMINI_API_KEY=your_key"
         )
 
     client = genai.Client(api_key=api_key)
@@ -61,8 +61,8 @@ def correr_conversacion_real(mensaje_usuario: str, estado: EstadoConversacion, h
     contents = historial or []
     contents.append(types.Content(role="user", parts=[types.Part(text=mensaje_usuario)]))
 
-    # Loop: el modelo puede pedir varias tools en cadena antes de responder en texto.
-    for _ in range(8):  # limite de seguridad para no entrar en loop infinito
+    # Loop: the model may request several tools in a chain before answering in text.
+    for _ in range(8):  # safety limit to avoid an infinite loop
         resp = client.models.generate_content(model=modelo, contents=contents, config=config)
         contenido = resp.candidates[0].content
         contents.append(contenido)
@@ -79,17 +79,17 @@ def correr_conversacion_real(mensaje_usuario: str, estado: EstadoConversacion, h
 
         return "".join(p.text or "" for p in contenido.parts), contents
 
-    return "(se alcanzo el limite de pasos sin una respuesta final)", contents
+    return "(step limit reached without a final answer)", contents
 
 
 # ---------------------------------------------------------------------------
-# MODO MOCK - prueba el despacho (lo que de verdad importa) sin red.
-# El "modelo" aqui es un guion fijo, no una decision real de Gemini.
+# MOCK MODE - tests the dispatch (what really matters) without a network.
+# The "model" here is a fixed script, not a real Gemini decision.
 # ---------------------------------------------------------------------------
 class ModeloSimulado:
-    """Imita las llamadas de function-calling que se espera que Gemini haga,
-    siguiendo un guion por caso. NO decide nada por su cuenta - es un stub de
-    pruebas, documentado como tal."""
+    """Imitates the function-calling calls Gemini is expected to make,
+    following a script per case. It decides NOTHING on its own - it is a test
+    stub, documented as such."""
 
     def __init__(self, guion: list):
         self.guion = guion
@@ -117,8 +117,8 @@ def correr_conversacion_mock(guion: list):
 
 if __name__ == "__main__":
     print("=" * 70)
-    print("MODO MOCK - probando el despacho de tools con 3 guiones (uno por caso obligatorio)")
-    print("(sin llamar a ninguna API - ver docstring del archivo para el porque)")
+    print("MOCK MODE - testing the tool dispatch with 3 scripts (one per mandatory case)")
+    print("(no API is called - see the file docstring for why)")
     print("=" * 70)
 
     from tools import _con, _records
@@ -131,7 +131,7 @@ if __name__ == "__main__":
     alto = _records(con.execute(q.format("> 3000")).df())[0]
     cid_1, cid_2 = bajo["customer_id"], alto["customer_id"]
 
-    print("\n--- CASO A: resolucion normal (auto-aprobado), monto bajo ---")
+    print("\n--- CASE A: normal resolution (auto-approved), low amount ---")
     guion_a = [
         {"tipo": "tool_call", "nombre": "verificar_cliente", "args": {"customer_id": cid_1}},
         {"tipo": "tool_call", "nombre": "calcular_riesgo_caso", "args": {
@@ -139,14 +139,14 @@ if __name__ == "__main__":
         {"tipo": "tool_call", "nombre": "abrir_caso_disputa", "args": {
             "customer_id": cid_1, "transaction_id": bajo["transaction_id"], "monto_usd": bajo["amount_usd"],
             "categoria": "Service", "canal_recepcion": "App"}},
-        {"tipo": "texto_final", "texto": "Listo, tu reembolso quedo aprobado automaticamente."},
+        {"tipo": "texto_final", "texto": "Done, your refund was approved automatically."},
     ]
     log_a, _ = correr_conversacion_mock(guion_a)
     for paso in log_a:
         print(" ", paso.get("accion"), "->", paso.get("resultado", paso.get("texto")))
     assert log_a[2]["resultado"]["decision"] == "AUTO_APROBADO"
 
-    print("\n--- CASO B: escalacion a humano, monto alto ---")
+    print("\n--- CASE B: escalation to a human, high amount ---")
     guion_b = [
         {"tipo": "tool_call", "nombre": "verificar_cliente", "args": {"customer_id": cid_2}},
         {"tipo": "tool_call", "nombre": "calcular_riesgo_caso", "args": {
@@ -154,25 +154,25 @@ if __name__ == "__main__":
         {"tipo": "tool_call", "nombre": "abrir_caso_disputa", "args": {
             "customer_id": cid_2, "transaction_id": alto["transaction_id"], "monto_usd": 5000,
             "categoria": "Fees", "canal_recepcion": "Call Center"}},
-        {"tipo": "texto_final", "texto": "Tu caso necesita revision de un agente humano, te va a contactar pronto."},
+        {"tipo": "texto_final", "texto": "Your case needs review by a human agent, who will contact you soon."},
     ]
     log_b, _ = correr_conversacion_mock(guion_b)
     for paso in log_b:
         print(" ", paso.get("accion"), "->", paso.get("resultado", paso.get("texto")))
     assert log_b[2]["resultado"]["decision"] == "ESCALADO_A_HUMANO"
 
-    print("\n--- CASO C: ambiguo, el modelo 'intenta' forzar un cargo que no existe ---")
+    print("\n--- CASE C: ambiguous, the model 'tries' to force a charge that does not exist ---")
     guion_c = [
         {"tipo": "tool_call", "nombre": "verificar_cliente", "args": {"customer_id": cid_1}},
         {"tipo": "tool_call", "nombre": "buscar_cargo_disputado", "args": {"customer_id": cid_1, "monto_aprox": 999999.99}},
-        {"tipo": "texto_final", "texto": "No encuentro ese cargo en tu cuenta, me ayudas con mas detalles o te paso con un agente?"},
+        {"tipo": "texto_final", "texto": "I cannot find that charge on your account. Can you give me more details, or should I pass you to an agent?"},
     ]
     log_c, _ = correr_conversacion_mock(guion_c)
     for paso in log_c:
         print(" ", paso.get("accion"), "->", paso.get("resultado", paso.get("texto")))
     assert log_c[1]["resultado"]["encontrada"] is False
 
-    print("\n--- CASO D (seguridad extra): el 'modelo' intenta forzar un riesgo bajo sin haberlo calculado ---")
+    print("\n--- CASE D (extra security): the 'model' tries to force a low risk without having calculated it ---")
     guion_d = [
         {"tipo": "tool_call", "nombre": "verificar_cliente", "args": {"customer_id": cid_2}},
         {"tipo": "tool_call", "nombre": "abrir_caso_disputa", "args": {
@@ -183,7 +183,7 @@ if __name__ == "__main__":
     for paso in log_d:
         print(" ", paso.get("accion"), "->", paso.get("resultado", paso.get("texto")))
     assert log_d[1]["resultado"]["ok"] is False and log_d[1]["resultado"]["motivo"] == "RIESGO_NO_CALCULADO", \
-        "FALLO: abrir_caso_disputa no deberia ejecutarse sin un riesgo calculado por el propio sistema"
+        "FAILED: abrir_caso_disputa must not run without a risk calculated by the system itself"
 
-    print("\nTODOS LOS GUIONES DE DESPACHO PASARON ✅")
-    print("(El despacho es el mismo codigo que correria con Gemini real; falta solo conectar la API key)")
+    print("\nALL DISPATCH SCRIPTS PASSED ✅")
+    print("(The dispatch is the same code that would run with real Gemini; only the API key is missing)")
