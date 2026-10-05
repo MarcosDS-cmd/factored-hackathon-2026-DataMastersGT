@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Disputas con límites · DataMastersGT</title>
-<meta name="description" content="Agente de IA para disputas por cargos no reconocidos: conversa en español y portugués, y aplica límites de aprobación escritos en código. Factored AI & Data Hackathon 2026.">
+<title>Disputes with Limits · DataMastersGT</title>
+<meta name="description" content="AI agent for unrecognized-charge disputes: it talks to customers in Spanish and Portuguese and enforces approval limits written in code. Factored AI & Data Hackathon 2026.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230e2b2a'/%3E%3Cpath d='M9 17l5 5 9-11' stroke='%239cc8bf' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,20 +15,20 @@
 
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="#inicio" aria-label="Inicio">
+    <a class="brand" href="#inicio" aria-label="Home">
       <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M9 17l5 5 9-11" stroke="var(--guilloche)" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
-      Disputas con límites
+      Disputes with Limits
     </a>
-    <nav class="nav" aria-label="Secciones">
-      <a href="#problema">El problema</a>
-      <a href="#demo">Demo en vivo</a>
-      <a href="#decide">Cómo decide</a>
-      <a href="#resultados">Resultados</a>
-      <a href="#modelos">Modelos</a>
-      <a href="#limites">Limitaciones</a>
-      <a href="/portal">Portal del cliente</a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#problema">The problem</a>
+      <a href="#demo">Live demo</a>
+      <a href="#decide">How it decides</a>
+      <a href="#resultados">Results</a>
+      <a href="#modelos">Models</a>
+      <a href="#limites">Limitations</a>
+      <a href="/portal">Customer portal</a>
     </nav>
-    <button class="theme-btn" id="themeBtn" type="button" aria-label="Cambiar tema claro u oscuro">
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch light or dark theme">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
     </button>
   </div>
@@ -39,25 +39,25 @@
   <section class="hero">
     <div class="wrap hero-grid">
       <div>
-        <h1>Un cargo que no reconoces, resuelto antes de colgar.</h1>
-        <p class="lede">Un agente de IA para disputas por cargos no reconocidos. Conversa en español y portugués y elige qué herramienta usar, pero los límites de aprobación están escritos en código: ningún mensaje del cliente ni del modelo los puede mover.</p>
+        <h1>A charge you don't recognize, resolved before you hang up.</h1>
+        <p class="lede">An AI agent for unrecognized-charge disputes. It talks to customers in Spanish and Portuguese and chooses which tool to use, but the approval limits are written in code: no customer message and no model output can move them.</p>
         <div class="hero-actions">
-          <a class="btn btn-primary" href="#demo">Probar el agente</a>
-          <a class="btn btn-ghost" href="/portal">Entrar como cliente</a>
+          <a class="btn btn-primary" href="#demo">Try the agent</a>
+          <a class="btn btn-ghost" href="/portal">Sign in as a customer</a>
         </div>
         <p class="facts" id="heroFacts" aria-live="polite"></p>
       </div>
 
-      <figure class="statement" aria-label="Ejemplo: un cliente disputa un cargo y el agente lo resuelve">
+      <figure class="statement" aria-label="Example: a customer disputes a charge and the agent resolves it">
         <svg class="guil" id="guilHero" aria-hidden="true"></svg>
-        <div class="st-head"><strong>Estado de cuenta</strong><span>Roberto S. · Colombia · cliente real del dataset</span></div>
+        <div class="st-head"><strong>Account statement</strong><span>Roberto S. · Colombia · real customer from the dataset</span></div>
         <ul class="st-rows" id="stRows"></ul>
         <div class="st-trace" id="stTrace" aria-live="polite"></div>
         <div class="st-foot">
-          <p class="small" id="stCaption">El agente verifica identidad, ubica el cargo, calcula el riesgo y abre el caso.</p>
-          <div class="stamp" id="stStamp">Reembolso aprobado<small>US$243.63</small></div>
+          <p class="small" id="stCaption">The agent verifies identity, finds the charge, scores the risk and opens the case.</p>
+          <div class="stamp" id="stStamp">Refund approved<small>US$243.63</small></div>
         </div>
-        <div style="padding: 0 22px 16px"><button class="replay" id="stReplay" type="button">Repetir</button></div>
+        <div style="padding: 0 22px 16px"><button class="replay" id="stReplay" type="button">Replay</button></div>
       </figure>
     </div>
   </section>
@@ -66,23 +66,23 @@
   <section class="band" id="problema">
     <div class="wrap">
       <div class="sec-head">
-        <p class="kicker">El problema, con datos del reto</p>
-        <h2>El banco ya recibe miles de disputas y su triage no protege a nadie.</h2>
-        <p class="lede">Analizamos las tablas de quejas, interacciones de call center, transcripciones y transacciones de 2026. Cuatro hallazgos definieron el proyecto.</p>
+        <p class="kicker">The problem, from the challenge data</p>
+        <h2>The bank already gets thousands of disputes, and its triage protects no one.</h2>
+        <p class="lede">We analyzed the 2026 tables of complaints, call-center interactions, transcripts and transactions. Four findings shaped the project.</p>
       </div>
       <div class="findings" id="findings"></div>
       <div class="two">
         <div class="panel">
-          <h3>La prioridad asignada no cambia nada</h3>
-          <p class="sub">% de quejas que incumplen el SLA, según la prioridad que les puso el banco</p>
+          <h3>The assigned priority changes nothing</h3>
+          <p class="sub">% of complaints that breach the SLA, by the priority the bank assigned</p>
           <div class="chart" id="chSla"></div>
           <p class="take" id="takeSla"></p>
         </div>
         <div class="panel">
-          <h3>Las quejas son las que menos se resuelven al primer contacto</h3>
-          <p class="sub">% de interacciones de call center resueltas en el primer contacto, por motivo</p>
+          <h3>Complaints are the least likely to be solved on first contact</h3>
+          <p class="sub">% of call-center interactions resolved on first contact, by reason</p>
           <div class="chart" id="chCci"></div>
-          <p class="take">Las quejas se resuelven a menos de la mitad de la tasa del resto: son las que terminan convertidas en disputas formales.</p>
+          <p class="take">Complaints are resolved at less than half the rate of the rest: they are the ones that end up as formal disputes.</p>
         </div>
       </div>
     </div>
@@ -92,26 +92,26 @@
   <section class="band alt" id="demo">
     <div class="wrap">
       <div class="sec-head">
-        <p class="kicker">Demo en vivo</p>
-        <h2>Habla con el agente como si fueras el cliente.</h2>
-        <p class="lede">Elige un cliente real del dataset y usa las sugerencias o escribe libremente. A la derecha ves lo mismo que vería un auditor: cada herramienta que se ejecutó, cuánto tardó y qué decidió el código.</p>
+        <p class="kicker">Live demo</p>
+        <h2>Talk to the agent as if you were the customer.</h2>
+        <p class="lede">Pick a real customer from the dataset and use the suggestions or type freely. The conversation stays in Spanish or Portuguese, with an English subtitle under each message. On the right you see what an auditor would see: every tool that ran, how long it took and what the code decided.</p>
       </div>
 
       <div class="demo">
         <div>
-          <div class="personas" id="personas" role="group" aria-label="Clientes de prueba"></div>
+          <div class="personas" id="personas" role="group" aria-label="Test customers"></div>
           <div class="ctrl-row" style="margin-top:14px">
-            <span>Canal</span>
-            <div class="seg" id="segCanal" role="group" aria-label="Canal de entrada">
+            <span>Channel</span>
+            <div class="seg" id="segCanal" role="group" aria-label="Entry channel">
               <button type="button" data-v="App" aria-pressed="true">App</button>
-              <button type="button" data-v="Regulator" aria-pressed="false">Regulador</button>
+              <button type="button" data-v="Regulator" aria-pressed="false">Regulator</button>
             </div>
           </div>
           <div class="ctrl-row">
-            <span>Motor</span>
-            <div class="seg" id="segMotor" role="group" aria-label="Motor de conversación">
+            <span>Engine</span>
+            <div class="seg" id="segMotor" role="group" aria-label="Conversation engine">
               <button type="button" data-v="llm" aria-pressed="false">LLM</button>
-              <button type="button" data-v="reglas" aria-pressed="true">Sin LLM</button>
+              <button type="button" data-v="reglas" aria-pressed="true">No LLM</button>
             </div>
           </div>
           <p class="small" id="motorNote" style="margin-top:8px"></p>
@@ -119,23 +119,23 @@
 
         <div class="chatbox">
           <div class="chat-head">
-            <span class="who" id="chatWho">Asistente de disputas</span>
-            <span class="mode" id="modeBadge">conectando…</span>
+            <span class="who" id="chatWho">Dispute assistant</span>
+            <span class="mode" id="modeBadge">connecting…</span>
           </div>
           <div class="msgs" id="msgs" aria-live="polite"></div>
-          <div class="chips" id="chips" aria-label="Mensajes sugeridos"></div>
+          <div class="chips" id="chips" aria-label="Suggested messages"></div>
           <form class="composer" id="composer">
-            <label class="sr-only" for="inp">Mensaje</label>
-            <textarea id="inp" rows="1" placeholder="Escribe como cliente… (Enter para enviar)"></textarea>
-            <button class="btn btn-primary" id="sendBtn" type="submit">Enviar</button>
+            <label class="sr-only" for="inp">Message</label>
+            <textarea id="inp" rows="1" placeholder="Type as the customer, in Spanish or Portuguese (Enter to send)"></textarea>
+            <button class="btn btn-primary" id="sendBtn" type="submit">Send</button>
           </form>
         </div>
 
         <div class="file">
-          <div class="tabs" role="tablist" aria-label="Expediente">
-            <button role="tab" aria-selected="true" aria-controls="tpTraza" id="tbTraza" type="button">Traza<span class="count" id="cntTraza"></span></button>
-            <button role="tab" aria-selected="false" aria-controls="tpCaso" id="tbCaso" type="button">Caso</button>
-            <button role="tab" aria-selected="false" aria-controls="tpHand" id="tbHand" type="button">Agente humano<span class="count" id="cntHand"></span></button>
+          <div class="tabs" role="tablist" aria-label="Case file">
+            <button role="tab" aria-selected="true" aria-controls="tpTraza" id="tbTraza" type="button">Trace<span class="count" id="cntTraza"></span></button>
+            <button role="tab" aria-selected="false" aria-controls="tpCaso" id="tbCaso" type="button">Case</button>
+            <button role="tab" aria-selected="false" aria-controls="tpHand" id="tbHand" type="button">Human agent<span class="count" id="cntHand"></span></button>
           </div>
           <div class="tabpanel" role="tabpanel" id="tpTraza" aria-labelledby="tbTraza"></div>
           <div class="tabpanel" role="tabpanel" id="tpCaso" aria-labelledby="tbCaso" hidden></div>
@@ -149,45 +149,45 @@
   <section class="band" id="decide">
     <div class="wrap">
       <div class="sec-head">
-        <p class="kicker">Cómo decide</p>
-        <h2>El modelo conversa. La decisión la toma el código.</h2>
-        <p class="lede">El LLM decide qué herramienta llamar y con qué argumentos. La herramienta busca el monto real en los registros del banco, recalcula el riesgo con datos propios y aplica la política. Si el modelo pide algo fuera de los límites, recibe un rechazo estructurado.</p>
+        <p class="kicker">How it decides</p>
+        <h2>The model talks. The code decides.</h2>
+        <p class="lede">The LLM decides which tool to call and with which arguments. The tool looks up the real amount in the bank's records, recomputes the risk from its own data and applies the policy. If the model asks for something outside the limits, it gets a structured rejection.</p>
       </div>
 
-      <div class="ruler" aria-label="Política por monto">
+      <div class="ruler" aria-label="Policy by amount">
         <div class="ruler-bar">
-          <div class="z-ok">Se aprueba sola</div>
-          <div class="z-rev">Revisión estándar (o humano si el riesgo es alto)</div>
-          <div class="z-esc">Siempre a un humano</div>
+          <div class="z-ok">Auto-approved</div>
+          <div class="z-rev">Standard review (or a human if risk is high)</div>
+          <div class="z-esc">Always to a human</div>
         </div>
         <div class="ruler-ticks"><span>US$0</span><span>US$300</span><span>US$1,500+</span></div>
       </div>
       <div class="overrides">
-        <div><b>Sospecha de fraude</b>Si la transacción está marcada como fraude o su score es ≥ 70, va al equipo de fraude aunque sea de US$10.</div>
-        <div><b>Canal regulador</b>Una queja que entra por el regulador siempre escala. El canal sale de la sesión, no de lo que diga el modelo.</div>
-        <div><b>Riesgo alto + monto medio</b>Con riesgo alto y más de US$300 escala. El riesgo combina monto, reincidencia, categoría, canal y valor del cliente.</div>
+        <div><b>Suspected fraud</b>If the transaction is flagged as fraud or its score is ≥ 70, it goes to the fraud team even if it is US$10.</div>
+        <div><b>Regulator channel</b>A complaint that arrives through the regulator always escalates. The channel comes from the session, not from what the model says.</div>
+        <div><b>High risk + medium amount</b>With high risk and more than US$300 it escalates. Risk combines amount, repeat complaints, category, channel and customer value.</div>
       </div>
 
       <div class="stack">
         <div class="panel">
-          <h3>Simula un caso</h3>
-          <p class="sub">La misma regla que aplica <code>abrir_caso_disputa</code>, recalculada en tu navegador</p>
+          <h3>Simulate a case</h3>
+          <p class="sub">The same rule that <code>abrir_caso_disputa</code> applies, recomputed in your browser</p>
           <div class="sim">
             <div>
               <div class="amount num" id="simAmt">US$250</div>
-              <label for="simRange" class="sr-only">Monto del cargo</label>
+              <label for="simRange" class="sr-only">Charge amount</label>
               <input type="range" id="simRange" min="10" max="4000" step="10" value="250">
-              <label><input type="checkbox" id="simSeg"> Cliente Premium o Plus</label>
-              <label><input type="checkbox" id="simRep"> Ya tiene quejas anteriores</label>
-              <label><input type="checkbox" id="simReg"> Llega por el canal regulador</label>
-              <label><input type="checkbox" id="simFraud"> Transacción con score de fraude ≥ 70</label>
+              <label><input type="checkbox" id="simSeg"> Premium or Plus customer</label>
+              <label><input type="checkbox" id="simRep"> Has previous complaints</label>
+              <label><input type="checkbox" id="simReg"> Arrives through the regulator channel</label>
+              <label><input type="checkbox" id="simFraud"> Transaction with fraud score ≥ 70</label>
             </div>
             <div class="sim-out" id="simOut" aria-live="polite"></div>
           </div>
         </div>
         <div class="panel">
-          <h3>Ataques al agente, bloqueados en código</h3>
-          <p class="sub" id="secSub">Pruebas automáticas que simulan un modelo manipulado o que alucina</p>
+          <h3>Attacks on the agent, blocked in code</h3>
+          <p class="sub" id="secSub">Automated tests that simulate a manipulated or hallucinating model</p>
           <ul class="checks" id="checks"></ul>
         </div>
       </div>
@@ -198,22 +198,22 @@
   <section class="band alt" id="resultados">
     <div class="wrap">
       <div class="sec-head">
-        <p class="kicker">Resultados</p>
-        <h2>Las métricas del reto, medidas sobre conversaciones completas.</h2>
+        <p class="kicker">Results</p>
+        <h2>The challenge metrics, measured on full conversations.</h2>
         <p class="lede" id="resLede"></p>
       </div>
       <div class="source-row" id="sourceRow"></div>
       <div class="kpis" id="kpis"></div>
       <div class="two">
         <div class="panel">
-          <h3>Resolución segura y contención por idioma</h3>
-          <p class="sub">% de conversaciones</p>
+          <h3>Safe resolution and containment by language</h3>
+          <p class="sub">% of conversations</p>
           <div class="legend" id="lgLang"></div>
           <div class="chart" id="chLang"></div>
         </div>
         <div class="panel">
-          <h3>Latencia por turno</h3>
-          <p class="sub">Milisegundos desde que llega el mensaje hasta la respuesta, p50 y p95</p>
+          <h3>Latency per turn</h3>
+          <p class="sub">Milliseconds from the incoming message to the reply, p50 and p95</p>
           <div class="legend" id="lgLat"></div>
           <div class="chart" id="chLat"></div>
           <p class="take" id="takeLat"></p>
@@ -221,13 +221,13 @@
       </div>
       <div class="two">
         <div class="panel">
-          <h3>Lo esperado contra lo que hizo el agente</h3>
-          <p class="sub">Filas: resultado que exige la política. Columnas: resultado obtenido.</p>
+          <h3>Expected vs. what the agent did</h3>
+          <p class="sub">Rows: outcome required by the policy. Columns: outcome obtained.</p>
           <div id="matrix" style="overflow-x:auto"></div>
         </div>
         <div class="panel">
-          <h3>Por escenario</h3>
-          <p class="sub">Los 3 casos obligatorios y las pruebas adicionales</p>
+          <h3>By scenario</h3>
+          <p class="sub">The 3 mandatory cases and the extra tests</p>
           <div id="perType" style="overflow-x:auto"></div>
         </div>
       </div>
@@ -239,31 +239,31 @@
   <section class="band" id="modelos">
     <div class="wrap">
       <div class="sec-head">
-        <p class="kicker">Modelos propios</p>
-        <h2>Dos modelos, cada uno comparado contra una regla simple.</h2>
-        <p class="lede">El clasificador de intención entiende cada mensaje en español y portugués. El modelo de riesgo le da al agente humano una segunda opinión. Ninguno de los dos aprueba nada: eso lo decide la política.</p>
+        <p class="kicker">Our own models</p>
+        <h2>Two models, each compared against a simple rule.</h2>
+        <p class="lede">The intent classifier understands every message in Spanish and Portuguese. The risk model gives the human agent a second opinion. Neither approves anything: the policy does.</p>
       </div>
       <div class="two" style="margin-top:0">
         <div class="panel">
-          <h3>Clasificador de intención</h3>
+          <h3>Intent classifier</h3>
           <p class="sub" id="intSub"></p>
           <div class="legend" id="lgInt"></div>
           <div class="chart" id="chInt"></div>
           <div class="story" id="intStory"></div>
           <form class="try" id="tryForm">
-            <label class="sr-only" for="tryInp">Frase para clasificar</label>
+            <label class="sr-only" for="tryInp">Phrase to classify</label>
             <input id="tryInp" value="Olá, apareceu uma cobrança estranha no meu cartão" autocomplete="off">
-            <button class="btn btn-ghost" type="submit">Clasificar</button>
+            <button class="btn btn-ghost" type="submit">Classify</button>
           </form>
           <div class="try-out" id="tryOut" aria-live="polite"></div>
         </div>
         <div class="panel">
-          <h3>Modelo de riesgo</h3>
+          <h3>Risk model</h3>
           <p class="sub" id="riskSub"></p>
           <div class="legend" id="lgRisk"></div>
           <div class="chart" id="chRisk"></div>
-          <h3 style="font-size:1rem;margin-top:22px">Qué variables pesan más</h3>
-          <p class="sub">Importancia en el Random Forest, top 8</p>
+          <h3 style="font-size:1rem;margin-top:22px">Which variables weigh the most</h3>
+          <p class="sub">Random Forest importance, top 8</p>
           <div class="chart" id="chImp"></div>
           <p class="take" id="riskTake"></p>
         </div>
@@ -275,16 +275,16 @@
   <section class="band alt" id="limites">
     <div class="wrap">
       <div class="sec-head">
-        <p class="kicker">Limitaciones</p>
-        <h2>Lo que no está resuelto, dicho sin rodeos.</h2>
+        <p class="kicker">Limitations</p>
+        <h2>What is not solved, stated plainly.</h2>
       </div>
       <div class="limits">
-        <div><b>El dataset es 100% español</b>Las 7,454 transcripciones vienen en español. Los casos en portugués los generó el equipo, y los clientes son de México, Colombia y Argentina.</div>
-        <div><b>El riesgo es una regla de negocio, no una etiqueta del banco</b>Las columnas de resultado del dataset (SLA, escalación, prioridad) no se pueden aprender a partir de las variables (AUC ≈ 0.50). Definimos el riesgo con una regla documentada y el modelo aprende a reproducirla y generalizarla.</div>
-        <div><b>El corpus de intención es sintético</b>Son 1,273 frases de 216 plantillas, evaluadas con plantillas que el modelo nunca vio. Los mensajes reales son más desordenados: hay que revalidar con conversaciones reales antes de producción.</div>
-        <div><b>El cliente de la evaluación es simulado</b>Las conversaciones usan clientes y cargos reales, pero el "cliente" responde con frases programadas. Mide si las reglas y el flujo son correctos, no qué tan natural es la conversación.</div>
-        <div><b>Datos con huecos</b>El 57% de las transacciones no trae monto en USD (todas las USD y algunas COP/ARS): lo completamos con el tipo de cambio observado (COP 4,000 y ARS 350). El 68% de las quejas no tiene monto reclamado.</div>
-        <div><b>"Hoy" es el 18 de junio de 2026</b>Es la última fecha de la muestra de transacciones. Las consultas de "últimos 30 días" se calculan desde ahí.</div>
+        <div><b>The dataset is 100% Spanish</b>All 7,454 transcripts are in Spanish. The Portuguese cases were generated by the team, and the customers are from Mexico, Colombia and Argentina.</div>
+        <div><b>Risk is a business rule, not a bank label</b>The dataset's outcome columns (SLA, escalation, priority) cannot be learned from the variables (AUC ≈ 0.50). We defined risk with a documented rule and the model learns to reproduce and generalize it.</div>
+        <div><b>The intent corpus is synthetic</b>1,273 phrases from 216 templates, evaluated on templates the model never saw. Real messages are messier: it must be revalidated with real conversations before production.</div>
+        <div><b>The evaluation customer is simulated</b>The conversations use real customers and charges, but the "customer" answers with scripted phrases. It measures whether the rules and the flow are correct, not how natural the conversation feels.</div>
+        <div><b>Data with gaps</b>57% of transactions have no USD amount (all USD and some COP/ARS): we fill it with the observed exchange rate (COP 4,000 and ARS 350). 68% of complaints have no claimed amount.</div>
+        <div><b>"Today" is June 18, 2026</b>It is the last date in the transaction sample. "Last 30 days" queries are computed from there.</div>
       </div>
     </div>
   </section>
@@ -294,7 +294,7 @@
   <svg class="guil" id="guilFoot" aria-hidden="true"></svg>
   <div class="wrap">
     <p><b>DataMastersGT</b> · Factored AI &amp; Data Hackathon 2026</p>
-    <p><a href="/portal">Portal del cliente (inglés)</a> · <a href="https://github.com/MarcosDS-cmd/factored-hackathon-2026-DataMastersGT">Código en GitHub</a> · <a href="/api/docs">API</a></p>
+    <p><a href="/portal">Customer portal</a> · <a href="https://github.com/MarcosDS-cmd/factored-hackathon-2026-DataMastersGT">Code on GitHub</a> · <a href="/api/docs">API</a></p>
   </div>
 </footer>
 

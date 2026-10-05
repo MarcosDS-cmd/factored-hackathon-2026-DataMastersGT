@@ -323,3 +323,7 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 16px 40px; justify-content: 
 .stack { display: grid; gap: clamp(20px, 3vw, 36px); margin-top: clamp(28px, 4vw, 44px); }
 .sim-wide { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; align-items: center; }
 @media (max-width: 760px) { .sim-wide { grid-template-columns: 1fr; } }
+
+/* English subtitles under demo chat messages */
+.msg .sub-en { display: block; margin-top: 6px; padding-top: 6px; border-top: 1px dashed currentColor; font-size: .8rem; line-height: 1.4; font-style: italic; opacity: .72; border-top-color: color-mix(in oklab, currentColor 30%, transparent); }
+.msg .sub-en::before { content: "EN · "; font-style: normal; font-weight: 600; letter-spacing: .04em; font-size: .68rem; }

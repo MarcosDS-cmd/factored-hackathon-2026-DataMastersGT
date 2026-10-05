@@ -30,6 +30,7 @@ from pydantic import BaseModel, Field  # noqa: E402
 
 from agent_core import EstadoConversacion  # noqa: E402
 from runtime import turno, proveedor_configurado  # noqa: E402
+from subtitles import subtitulo  # noqa: E402
 from tools import PERMISOS, _con, umbral_monto_tipico, _STATS  # noqa: E402
 
 WEB = os.path.join(ROOT, "web")
@@ -100,7 +101,12 @@ def chat(body: ChatIn):
     if proveedor and proveedor != "reglas" and proveedor_configurado() == "reglas":
         proveedor = "reglas"  # no key on the server -> deterministic agent
     r = turno(e, body.mensaje.strip(), proveedor)  # conversations are independent; tools use their own cursors
+    # English subtitles (display only; never fed back to the agent). Template-exact for the rule agent,
+    # optional LLM translation otherwise. They are computed after the answer, so they add no latency to "ms".
+    idioma = r["nlu"].get("idioma")
     return {"conv_id": e.conv_id, **{k: r[k] for k in ("respuesta", "modo", "ms")}, "nlu": r["nlu"],
+            "subtitulo_agente": subtitulo(r["respuesta"], "agente", e.idioma or idioma, r["modo"]),
+            "subtitulo_cliente": subtitulo(body.mensaje.strip(), "cliente", idioma),
             "estado": e.resumen()}
 
 
