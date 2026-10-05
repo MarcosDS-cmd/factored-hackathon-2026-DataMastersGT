@@ -7,8 +7,15 @@ const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const fmt = (n, d = 2) => Number(n).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+<<<<<<< HEAD
+const t = (k, v) => I18N.t(k, v);
+const tk = (prefix, k, fallback) => { const s = t(prefix + k); return s === prefix + k ? (fallback ?? k) : s; };
+const TOKEN_KEY = "dmb-portal-token";
+let TOKEN = null, VIEW = null, BUSY = false;
+=======
 const TOKEN_KEY = "dmb-portal-token", LANG_KEY = "dm-lang";
 let TOKEN = null, VIEW = null, BUSY = false, LANG = "es";
+>>>>>>> 8fd4af9351b08f8d9245c6d3deea289d3da5158a
 try { TOKEN = sessionStorage.getItem(TOKEN_KEY); } catch (e) {}
 try { const l = localStorage.getItem(LANG_KEY); if (["es", "pt", "en"].includes(l)) LANG = l; } catch (e) {}
 const saveToken = (t) => { TOKEN = t; try { t ? sessionStorage.setItem(TOKEN_KEY, t) : sessionStorage.removeItem(TOKEN_KEY); } catch (e) {} };
@@ -170,23 +177,42 @@ function showError(key, raw) {
 async function api(path, opts = {}) {
   const r = await fetch(path, { ...opts, headers: { "Content-Type": "application/json", ...(TOKEN ? { Authorization: "Bearer " + TOKEN } : {}), ...(opts.headers || {}) } });
   const body = await r.json().catch(() => ({}));
+<<<<<<< HEAD
+  const code = body.detail && typeof body.detail === "object" ? body.detail.code : null;
+  const msg = code ? tk("p.err.", code, body.detail.message) : (body.detail || `Error ${r.status}`);
+  if (r.status === 401 && path !== "/api/portal/login") { saveToken(null); showLogin(msg); throw new Error("401"); }
+  if (!r.ok) throw new Error(msg);
+=======
   if (r.status === 401 && path !== "/api/portal/login") { saveToken(null); showLogin(ERR[body.detail] || "err_relogin"); throw new Error("401"); }
   if (!r.ok) { const e = new Error(body.detail || `Error ${r.status}`); e.detail = body.detail; throw e; }
+>>>>>>> 8fd4af9351b08f8d9245c6d3deea289d3da5158a
   return body;
 }
 
 /* ---------------- sign in ---------------- */
+<<<<<<< HEAD
+const SCEN = { auto: ["ok", "auto"], auto_pt: ["ok", "auto"], pendiente: ["review", "pendiente"], escala_monto: ["esc", "escala_monto"], escala_fraude: ["esc", "escala_fraude"] };
+let DEMO_PS = null;
+=======
 const SCEN = { auto: ["ok", "st_ok"], auto_pt: ["ok", "st_ok"], pendiente: ["review", "st_review"],
   escala_monto: ["esc", "st_esc_amount"], escala_fraude: ["esc", "st_esc_fraud"] };
+>>>>>>> 8fd4af9351b08f8d9245c6d3deea289d3da5158a
 async function loadDemo() {
   try {
-    const ps = await fetch("/data/demo_customers.json").then((r) => r.json());
+    const ps = DEMO_PS || (DEMO_PS = await fetch("/data/demo_customers.json").then((r) => r.json()));
     $("#demoList").innerHTML = "";
     ps.forEach((p) => {
+<<<<<<< HEAD
+      const [c, key] = SCEN[p.id] || ["", ""];
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "demo-acc";
+      b.innerHTML = `<b>${esc(p.nombre)}</b><span>${esc(p.tipo_documento)} ${esc(p.documento)} · ${esc(tk("p.scen.d.", p.id, ""))}</span><em class="tag state ${c}">${esc(tk("p.scen.", key, ""))}</em>`;
+=======
       const [c, t] = SCEN[p.id] || ["", "st_ok"];
       const b = document.createElement("button");
       b.type = "button"; b.className = "demo-acc";
       b.innerHTML = `<b>${esc(p.nombre)}</b><span>${esc(p.tipo_documento)} ${esc(p.documento)} · ${P["sc_" + p.id] ? both("sc_" + p.id) : ""}</span><em class="tag state ${c}">${esc(tr(t))}</em>`;
+>>>>>>> 8fd4af9351b08f8d9245c6d3deea289d3da5158a
       b.addEventListener("click", () => { $("#fDoc").value = p.documento; $("#fName").value = p.nombre; $("#loginBtn").focus(); });
       $("#demoList").append(b);
     });
@@ -195,6 +221,21 @@ async function loadDemo() {
 $("#loginForm").addEventListener("submit", async (ev) => {
   ev.preventDefault();
   const doc = $("#fDoc").value.trim(), name = $("#fName").value.trim(), err = $("#loginError");
+<<<<<<< HEAD
+  err.hidden = true;
+  if (!doc || !name) { err.textContent = t("p.err.empty"); err.hidden = false; return; }
+  $("#loginBtn").disabled = true; $("#loginBtn").textContent = t("p.signingin");
+  try {
+    const d = await api("/api/portal/login", { method: "POST", body: JSON.stringify({ document: doc, full_name: name, lang: I18N.lang }) });
+    saveToken(d.token); VIEW = d; showApp(true);
+  } catch (e) { err.textContent = e.message === "Failed to fetch" ? t("p.err.net") : e.message; err.hidden = false; }
+  finally { $("#loginBtn").disabled = false; $("#loginBtn").textContent = t("p.signin"); }
+});
+function showLogin(msg) {
+  $("#viewApp").hidden = true; $("#viewLogin").hidden = false;
+  if (msg) { $("#loginError").textContent = msg; $("#loginError").hidden = false; }
+  document.title = t("p.title.login");
+=======
   err.hidden = true; delete err.dataset.k;
   if (!doc || !name) { showError("err_empty"); return; }
   $("#loginBtn").disabled = true; $("#loginBtn").innerHTML = both("signing");
@@ -212,10 +253,28 @@ function showLogin(msgKey) {
   $("#viewApp").hidden = true; $("#viewLogin").hidden = false; VIEW = null;
   if (msgKey) showError(msgKey);
   document.title = tr("title_login");
+>>>>>>> 8fd4af9351b08f8d9245c6d3deea289d3da5158a
 }
 $("#logoutBtn").addEventListener("click", async () => { try { await api("/api/portal/logout", { method: "POST" }); } catch (e) {} saveToken(null); VIEW = null; $("#asMsgs").innerHTML = ""; showLogin(); });
 
 /* ---------------- account ---------------- */
+<<<<<<< HEAD
+const DECC = { AUTO_APROBADO: "ok", PENDIENTE_REVISION: "review", ESCALADO_A_HUMANO: "esc" };
+const DEC = new Proxy({}, { get: (_, k) => DECC[k] && {
+  cls: DECC[k], state: t(`p.dec.${k}.s`), step: tk(`p.dec.${k}.`, "step", t(`p.dec.${k}.s`)), note: t(`p.dec.${k}.n`) } });
+const TYPE = new Proxy({}, { get: (_, k) => tk("p.type.", String(k)) });
+const status = (s) => tk("p.status.", s);
+const REASON = (r) => {
+  r = String(r);
+  let m = r.match(/^Amount \((.+?)\) exceeds the maximum/); if (m) return t("p.r.amount", { a: m[1] });
+  if (/^Suspected fraud/.test(r)) return t("p.r.fraud");
+  if (/^Reception channel/.test(r)) return t("p.r.reg");
+  if (/^High risk \+ amount/.test(r)) return t("p.r.risk");
+  return r;
+};
+const fmtDate = (s) => new Date(s.replace(" ", "T")).toLocaleDateString(I18N.locale, { month: "short", day: "numeric" });
+const desc = (x) => x.merchant_name || `${TYPE[x.transaction_type] || x.transaction_type} · ${x.channel}`;
+=======
 const DEC = {
   AUTO_APROBADO: { cls: "ok", state: "d_ok_state", step: "d_ok_state", note: "d_ok_note" },
   PENDIENTE_REVISION: { cls: "review", state: "d_rev_state", step: "d_rev_step", note: "d_rev_note" },
@@ -234,15 +293,24 @@ function reasonKey(r) {
 const fmtDate = (s) => new Date(s.replace(" ", "T")).toLocaleDateString(LOCALE(), { month: "short", day: "numeric" });
 const desc = (t) => t.merchant_name || `${typeName(t.transaction_type)} · ${t.channel}`;
 const descEn = (t) => t.merchant_name || `${typeName(t.transaction_type, "en")} · ${t.channel}`;
+>>>>>>> 8fd4af9351b08f8d9245c6d3deea289d3da5158a
 
 function showApp(first) {
   $("#viewLogin").hidden = true; $("#viewApp").hidden = false;
   const c = VIEW.customer;
+<<<<<<< HEAD
+  document.title = t("p.title.app");
+  $("#hello").textContent = t("p.hi", { name: (c.first_name || "").split(" ")[0] });
+  $("#helloSub").textContent = t("p.sub", { full: `${c.first_name} ${c.last_name || ""}`.trim(), seg: c.segment, country: c.country });
+  const llm = VIEW.engine && VIEW.engine !== "reglas";
+  $("#engineBadge").textContent = llm ? t("p.engine.ai") : t("p.engine.rules");
+=======
   document.title = tr("title_app");
   $("#hello").innerHTML = both("hello", (c.first_name || "").split(" ")[0]);
   $("#helloSub").textContent = tr("hello_sub", c.first_name, c.segment, c.country) + "";
   const llm = VIEW.engine && VIEW.engine !== "reglas";
   $("#engineBadge").textContent = tr(llm ? "eng_llm" : "eng_rules");
+>>>>>>> 8fd4af9351b08f8d9245c6d3deea289d3da5158a
   $("#engineBadge").className = "engine" + (llm ? " llm" : "");
   render();
   if (first || !$("#asMsgs").children.length) restoreChat();
@@ -250,6 +318,18 @@ function showApp(first) {
 function caseFor(txId) { return (VIEW.cases || []).find((c) => c.transaction_id === txId); }
 function render() {
   const txs = VIEW.transactions || [];
+<<<<<<< HEAD
+  $("#actRange").textContent = txs.length ? t("p.range", { d: fmtDate(VIEW.today + " 00:00:00") }) : "";
+  $("#txList").innerHTML = txs.length ? "" : `<li class="tx"><span class="m"><b>${t("p.noTx")}</b></span></li>`;
+  txs.forEach((tx) => {
+    const inbound = tx.transaction_type === "Deposit";
+    const k = caseFor(tx.transaction_id);
+    const li = document.createElement("li");
+    li.className = "tx" + (inbound ? " in" : "");
+    li.innerHTML = `<span class="d">${fmtDate(tx.transaction_date)}</span>
+      <span class="m"><b>${esc(desc(tx))}</b><span>${esc(TYPE[tx.transaction_type] || tx.transaction_type)} · ${esc(tx.channel)} · ${esc(status(tx.transaction_status))}</span></span>
+      <span class="a">${inbound ? "+" : "−"}US$${fmt(tx.amount_usd)}${tx.currency !== "USD" ? `<span>${fmt(tx.amount)} ${esc(tx.currency)}</span>` : ""}</span>
+=======
   $("#actRange").textContent = txs.length ? tr("act_range", fmtDate(VIEW.today + " 00:00:00")) : "";
   $("#txList").innerHTML = txs.length ? "" : `<li class="tx"><span class="m"><b>${both("no_tx")}</b></span></li>`;
   txs.forEach((t) => {
@@ -260,14 +340,21 @@ function render() {
     li.innerHTML = `<span class="d">${fmtDate(t.transaction_date)}</span>
       <span class="m"><b>${esc(desc(t))}</b><span>${esc(typeName(t.transaction_type))} · ${esc(t.channel)} · ${esc(t.transaction_status)}</span></span>
       <span class="a">${inbound ? "+" : "−"}US$${fmt(t.amount_usd)}${t.currency !== "USD" ? `<span>${fmt(t.amount)} ${esc(t.currency)}</span>` : ""}</span>
+>>>>>>> 8fd4af9351b08f8d9245c6d3deea289d3da5158a
       <span class="act"></span>`;
     const act = $(".act", li);
     if (k) act.innerHTML = `<span class="state ${DEC[k.decision].cls}">${esc(tr(DEC[k.decision].state))}${subHTML(en(DEC[k.decision].state))}</span>`;
     else if (!inbound) {
       const b = document.createElement("button");
+<<<<<<< HEAD
+      b.className = "btn-dispute"; b.type = "button"; b.textContent = t("p.dispute");
+      b.setAttribute("aria-label", t("p.dispute.aria", { d: desc(tx), a: fmt(tx.amount_usd) }));
+      b.addEventListener("click", () => dispute(tx, b));
+=======
       b.className = "btn-dispute"; b.type = "button"; b.innerHTML = both("btn_dispute");
       b.setAttribute("aria-label", tr("aria_dispute", desc(t), fmt(t.amount_usd)));
       b.addEventListener("click", () => dispute(t, b));
+>>>>>>> 8fd4af9351b08f8d9245c6d3deea289d3da5158a
       act.append(b);
     }
     $("#txList").append(li);
@@ -279,6 +366,18 @@ function render() {
     const reasons = (c.motivos_escalacion || []).map(reasonKey).filter(Boolean);
     const rTxt = reasons.map(([k, ...a]) => tr(k, ...a)).join(". "), rEn = reasons.map(([k, ...a]) => en(k, ...a)).join(". ");
     return `<article class="case">
+<<<<<<< HEAD
+      <div class="case-top"><div><b>${esc(c.descripcion ? descStr(c.descripcion) : t("p.case.charge"))} · US$${fmt(c.monto_usd)}</b><span class="small">${t("p.case.meta", { id: esc(c.caso_id), d: esc(c.fecha || "") })}</span></div>
+      <span class="state ${D.cls}">${D.state}</span></div>
+      <ol class="steps">
+        <li class="done">${t("p.step.rep")}</li>
+        <li class="done">${t("p.step.chk")}</li>
+        <li class="done final ${D.cls}"><b>${D.step}</b>${D.note}</li>
+      </ol>
+      ${reasons.length ? `<p class="small">${esc(t("p.why", { r: reasons.join(". ") }))}</p>` : ""}
+    </article>`;
+  }).join("") : `<p class="empty-cases">${t("p.noCases")}</p>`;
+=======
       <div class="case-top"><div><b>${esc(c.descripcion || tr("charge"))} · US$${fmt(c.monto_usd)}</b><span class="small">${esc(tr("case_meta", c.caso_id, c.fecha || ""))}${subHTML(en("case_meta", c.caso_id, c.fecha || ""))}</span></div>
       <span class="state ${D.cls}">${esc(tr(D.state))}${subHTML(en(D.state))}</span></div>
       <ol class="steps">
@@ -289,6 +388,7 @@ function render() {
       ${reasons.length ? `<p class="small">${esc(tr("why", rTxt))}${subHTML(en("why", rEn))}</p>` : ""}
     </article>`;
   }).join("") : `<p class="empty-cases">${both("empty_cases")}</p>`;
+>>>>>>> 8fd4af9351b08f8d9245c6d3deea289d3da5158a
   // banner for the latest outcome
   const last = cs[cs.length - 1], hd = VIEW.handoff, bn = $("#banner");
   const icon = { ok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M5 12l5 5 9-11"/></svg>',
@@ -296,10 +396,18 @@ function render() {
     esc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/></svg>' };
   if (last) {
     const D = DEC[last.decision];
+<<<<<<< HEAD
+    const text = { ok: t("p.bn.ok", { a: fmt(last.monto_usd) }), review: t("p.bn.review", { a: fmt(last.monto_usd) }),
+      esc: t("p.bn.esc", { id: last.caso_id }) }[D.cls];
+    bn.className = "banner " + D.cls; bn.innerHTML = `${icon[D.cls]}<b>${D.state}</b><p>${esc(text)}</p>`; bn.hidden = false;
+  } else if (hd) {
+    bn.className = "banner esc"; bn.innerHTML = `${icon.esc}<b>${t("p.bn.hand.h")}</b><p>${esc(t("p.bn.hand", { id: hd.handoff_id }))}</p>`; bn.hidden = false;
+=======
     const key = { ok: "b_ok", review: "b_review", esc: "b_esc" }[D.cls], arg = D.cls === "esc" ? last.caso_id : fmt(last.monto_usd);
     bn.className = "banner " + D.cls; bn.innerHTML = `${icon[D.cls]}<b>${both(D.state)}</b><p>${both(key, arg)}</p>`; bn.hidden = false;
   } else if (hd) {
     bn.className = "banner esc"; bn.innerHTML = `${icon.esc}<b>${both("b_hand_h")}</b><p>${both("b_hand_p", esc(hd.handoff_id))}</p>`; bn.hidden = false;
+>>>>>>> 8fd4af9351b08f8d9245c6d3deea289d3da5158a
   } else bn.hidden = true;
 }
 
@@ -323,14 +431,26 @@ function setSub(m, sub, orig) {
 function restoreChat() {
   $("#asMsgs").innerHTML = "";
   const first = (VIEW.customer.first_name || "").split(" ")[0];
+<<<<<<< HEAD
+  addMsg("a", t("p.greet", { name: first }));
+  (VIEW.messages || []).forEach((m) => addMsg(m.rol === "cliente" ? "c" : "a", m.texto));
+=======
   addMsg("a", tr("greet", first), null, en("greet", first));
   (VIEW.messages || []).forEach((m) => addMsg(m.rol === "cliente" ? "c" : "a", m.texto, null, m.sub || SUBS[m.texto]));
+>>>>>>> 8fd4af9351b08f8d9245c6d3deea289d3da5158a
   chips();
 }
 function chips() {
   const el = $("#asChips"); el.innerHTML = "";
   const escalado = (VIEW.cases || []).some((c) => c.decision === "ESCALADO_A_HUMANO");
   const decided = (VIEW.cases || []).length > 0;
+<<<<<<< HEAD
+  const list = [t("p.chip.person"), t("p.chip.fake")];
+  if (decided) list.splice(1, 0, escalado ? t("p.chip.why") : t("p.chip.faster"));
+  list.forEach((txt) => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = txt; b.title = txt;
+    b.addEventListener("click", () => send(txt)); el.append(b);
+=======
   const list = ["c_human", "c_big"];
   if (decided) list.splice(1, 0, escalado ? "c_why" : "c_fast");
   list.forEach((k) => {
@@ -338,11 +458,16 @@ function chips() {
     const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.title = en(k);
     b.innerHTML = esc(t) + subHTML(en(k));
     b.addEventListener("click", () => send(t)); el.append(b);
+>>>>>>> 8fd4af9351b08f8d9245c6d3deea289d3da5158a
   });
 }
 function working() {
   const w = document.createElement("div"); w.className = "working";
+<<<<<<< HEAD
+  w.innerHTML = `<span>${t("p.work.1")}</span><span>${t("p.work.2")}</span><span>${t("p.work.3")}</span>`;
+=======
   w.innerHTML = ["w1", "w2", "w3"].map((k) => `<span>${both(k)}</span>`).join("");
+>>>>>>> 8fd4af9351b08f8d9245c6d3deea289d3da5158a
   $("#asMsgs").append(w); $("#asMsgs").scrollTop = $("#asMsgs").scrollHeight;
   const spans = $$("span", w); let i = 0;
   spans[0].classList.add("on");
@@ -356,6 +481,16 @@ async function send(text, opts = {}) {
   const mc = addMsg("c", text, null, SUBS[text]);
   const stop = working();
   try {
+<<<<<<< HEAD
+    const d = await api("/api/portal/chat", { method: "POST", body: JSON.stringify({ mensaje: text, lang: I18N.lang }) });
+    stop();
+    VIEW = { ...VIEW, ...d };
+    addMsg("a", d.reply, d.engine === "reglas" ? t("p.meta.rules") : t("p.meta.ai"));
+    render(); chips();
+  } catch (e) {
+    stop();
+    if (e.message !== "401") addMsg("sys", t("p.noAnswer"));
+=======
     const d = await api("/api/portal/chat", { method: "POST", body: JSON.stringify({ mensaje: text, lang: LANG }) });
     stop();
     const { subtitulo_agente, subtitulo_cliente, ...rest } = d;
@@ -366,15 +501,22 @@ async function send(text, opts = {}) {
   } catch (e) {
     stop();
     if (e.message !== "401") addMsg("sys", tr("err_assist"), null, en("err_assist"));
+>>>>>>> 8fd4af9351b08f8d9245c6d3deea289d3da5158a
   } finally { BUSY = false; $("#asSend").disabled = false; if (opts.btn) opts.btn.disabled = false; }
 }
-function dispute(t, btn) {
+function dispute(tx, btn) {
   btn.disabled = true;
+<<<<<<< HEAD
+  send(t("p.disputeMsg", { a: fmt(tx.amount_usd), d: desc(tx), date: tx.transaction_date.slice(0, 10), id: tx.transaction_id }), { btn });
+=======
   const day = t.transaction_date.slice(0, 10);
   const text = tr("dispute_msg", fmt(t.amount_usd), desc(t), day, t.transaction_id);
   SUBS[text] = en("dispute_msg", fmt(t.amount_usd), descEn(t), day, t.transaction_id);
   send(text, { btn });
+>>>>>>> 8fd4af9351b08f8d9245c6d3deea289d3da5158a
 }
+/* the backend sends descriptions like "Withdrawal · Branch" for charges without a merchant */
+function descStr(s) { const m = String(s).match(/^(Withdrawal|Transfer|Purchase|Payment|Deposit) · (.+)$/); return m ? `${TYPE[m[1]]} · ${m[2]}` : s; }
 $("#asForm").addEventListener("submit", (e) => { e.preventDefault(); send($("#asInp").value); });
 $("#asInp").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send($("#asInp").value); } });
 $("#askBtn").addEventListener("click", () => { openAssistant(); $("#asInp").focus(); });
@@ -395,9 +537,20 @@ $("#helpBtn").addEventListener("click", () => ($("#assistant").classList.contain
 $("#closeAs").addEventListener("click", closeAssistant);
 addEventListener("keydown", (e) => { if (e.key === "Escape") closeAssistant(); });
 
+/* ---------------- language ---------------- */
+document.addEventListener("langchange", () => {
+  loadDemo();
+  if (VIEW && !$("#viewApp").hidden) { showApp(false); chips(); $("#asMsgs .msg.a")?.replaceChildren(document.createTextNode(t("p.greet", { name: (VIEW.customer.first_name || "").split(" ")[0] }))); }
+  else document.title = t("p.title.login");
+});
+
 /* ---------------- boot ---------------- */
 (async () => {
+<<<<<<< HEAD
+  I18N.apply();
+=======
   applyStatic();
+>>>>>>> 8fd4af9351b08f8d9245c6d3deea289d3da5158a
   loadDemo();
   if (TOKEN) {
     try { VIEW = await api("/api/portal/me"); applyStatic(); showApp(true); return; } catch (e) { saveToken(null); }

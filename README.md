@@ -114,7 +114,9 @@ uvicorn api.main:app --port 8000      # open http://localhost:8000
 
 The site has six sections: the problem (EDA), a **live demo** with an audit trace and a human-agent view, how the policy decides (with a simulator), the challenge metrics, the models, and the limitations. If opened without the backend (e.g. `web/` on static hosting), the chat replays recorded evaluation conversations.
 
-### Customer portal (`/portal`, English)
+**Languages:** both pages have an **ES | EN | PT** switcher in the top bar. The choice is remembered, so the project site and the customer portal open in the same language. In the portal the assistant also replies in the chosen language. Strings live in `web/assets/i18n-site.js` and `web/portal/i18n-portal.js` (shared helper: `web/assets/i18n.js`).
+
+### Customer portal (`/portal`, ES / EN / PT)
 
 The end-customer experience. The customer signs in with document + name (the same verification the agent uses), sees the last 90 days of transactions and clicks **Dispute** on a charge. The agent resolves it on the spot (refund approved or standard review) or escalates it to a specialist with full context. The customer sees the status of each dispute.
 
