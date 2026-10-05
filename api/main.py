@@ -149,13 +149,18 @@ FALLOS_LOGIN: dict[str, list] = {}      # document -> timestamps of failed login
 MAX_FALLOS, VENTANA = 5, timedelta(minutes=15)
 
 
+LANG_NAMES = {"es": "Spanish", "pt": "Portuguese", "en": "English"}
+
+
 class LoginIn(BaseModel):
     document: str = Field(..., min_length=3, max_length=30)
     full_name: str = Field(..., min_length=3, max_length=120)
+    lang: str = "es"   # portal UI language: the assistant answers in it (es | pt | en)
 
 
 class PortalChatIn(BaseModel):
     mensaje: str = Field(..., min_length=1, max_length=1000)
+    lang: str | None = None   # sent when the customer switches the portal language
 
 
 def _sesion_portal(authorization: str | None):
@@ -200,18 +205,20 @@ def portal_login(body: LoginIn):
         raise HTTPException(401, msg)
     FALLOS_LOGIN.pop(doc, None)
     c = r["cliente"]
-    e.idioma = "en"
+    lang = body.lang if body.lang in LANG_NAMES else "es"
+    e.idioma = lang
     e.contexto_extra = (
         "PORTAL CONTEXT: the customer is ALREADY authenticated in the bank's online portal "
         f"(customer_id {c['customer_id']}, name {c['first_name']} {c.get('last_name', '')}). Do NOT ask for their document or "
-        "name and do NOT call identificar_cliente again; use this customer_id in the tools. The portal is in English: reply "
-        "in English unless the customer writes in Spanish or Portuguese. When the customer cites a transaction_id, locate it "
+        "name and do NOT call identificar_cliente again; use this customer_id in the tools. The portal is in "
+        f"{LANG_NAMES[lang]}: reply in {LANG_NAMES[lang]} unless the customer writes in another of Spanish, Portuguese or English. "
+        "When the customer cites a transaction_id, locate it "
         "with consultar_transacciones_recientes (dias 90), then call calcular_riesgo_caso (categoria 'Transactions', canal 'Web') "
         "and abrir_caso_disputa for that transaction_id.")
     t = dispatch_tool_call("consultar_transacciones_recientes", {"customer_id": c["customer_id"], "dias": 90}, e)
     txns = [x for x in t.get("transacciones", [])]
     token = secrets.token_urlsafe(24)
-    PORTAL[token] = {"conv_id": e.conv_id, "transacciones": txns}
+    PORTAL[token] = {"conv_id": e.conv_id, "transacciones": txns, "lang": lang}
     return {"token": token, **_vista_portal(PORTAL[token], e)}
 
 
@@ -224,8 +231,20 @@ def portal_me(authorization: str | None = Header(None)):
 @app.post("/api/portal/chat")
 def portal_chat(body: PortalChatIn, authorization: str | None = Header(None)):
     _, ses, e = _sesion_portal(authorization)
+    if body.lang in LANG_NAMES and body.lang != ses.get("lang"):   # the customer switched the portal language
+        ses["lang"] = body.lang
+        e.idioma = body.lang
+        e.contexto_extra += (f" The customer switched the portal to {LANG_NAMES[body.lang]}: from now on reply in "
+                             f"{LANG_NAMES[body.lang]} unless the customer writes in another language.")
     r = turno(e, body.mensaje.strip())
-    return {"reply": r["respuesta"], "engine": r["modo"], "ms": r["ms"], **_vista_portal(ses, e)}
+    # English subtitles for the demo (display only; they never reach the agent). Stored on the messages
+    # so the chat restores with its subtitles after a page refresh.
+    sub_c = subtitulo(body.mensaje.strip(), "cliente", r["nlu"].get("idioma"))
+    sub_a = subtitulo(r["respuesta"], "agente", e.idioma, r["modo"])
+    if len(e.mensajes) >= 2:
+        e.mensajes[-2]["sub"], e.mensajes[-1]["sub"] = sub_c, sub_a
+    return {"reply": r["respuesta"], "engine": r["modo"], "ms": r["ms"],
+            "subtitulo_cliente": sub_c, "subtitulo_agente": sub_a, **_vista_portal(ses, e)}
 
 
 @app.post("/api/portal/logout")
