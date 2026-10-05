@@ -192,18 +192,50 @@ PT_WORDS = {"sou", "meu", "minha", "e", "o", "os", "as", "tenho", "quero", "ola"
             "com", "ao", "pra", "hoje", "ninguem", "deixa", "pode", "podem", "ja", "tem"}
 
 
+EN_WORDS = {"the", "i", "my", "is", "it", "an", "and", "you", "your", "this", "that", "charge", "don't", "dont",
+            "didn't", "didnt", "recognize", "hi", "hello", "please", "thanks", "thank", "want", "need", "can", "what",
+            "with", "of", "on", "at", "to", "was", "have", "card", "account", "refund", "why", "not", "help", "me",
+            "would", "like", "talk", "someone", "approve", "transaction", "dispute", "am", "be", "are", "who"}
+
+# The ML intent model is trained on ES/PT only. English messages (customer portal) use this keyword map instead.
+KEYWORDS_EN = {
+    "Transactional": ["charge", "recognize", "didn't make", "unauthorized", "dispute", "transaction", "debited", "charged",
+                      "withdrawal", "transfer", "refund", "payment"],
+    "Product": ["interest rate", "loan", "credit limit", "annual fee", "new card", "open an account"],
+    "Complaint": ["complaint", "rude", "terrible", "nobody", "waiting", "supervisor"],
+    "Technical": ["app", "login", "log in", "password", "website", "error", "token"],
+    "Commercial": ["promotion", "offer", "points", "rewards", "cashback"],
+    "Retention": ["cancel", "close my", "switch bank", "leave the bank"],
+}
+
+
+def intencion_ingles(texto: str) -> dict:
+    t = texto.lower()
+    scores = {k: sum(1 for w in ws if w in t) for k, ws in KEYWORDS_EN.items()}
+    best = max(scores, key=scores.get)
+    tot = sum(scores.values())
+    conf = round(scores[best] / tot, 3) if tot else 0.0
+    return {"intencion": best if tot else "Transactional", "confianza": conf if tot else 0.0,
+            "top3": [{"intencion": k, "p": round(v / tot, 3) if tot else 0.0} for k, v in sorted(scores.items(), key=lambda x: -x[1])[:3]],
+            "baseline_keywords": best if tot else "Transactional", "modelo": "keywords_en"}
+
+
 def detectar_idioma(texto: str, previo: str | None = None) -> str:
-    """ES/PT. Function-word vote first (robust for short messages full of names/numbers), char-ngram model as tie-break.
-    Very short messages without signal keep the conversation's previous language."""
+    """ES/PT/EN. Function-word vote first (robust for short messages full of names/numbers), char-ngram model
+    (ES/PT only) as tie-break. Very short messages without signal keep the conversation's previous language."""
+    crudo = [w.strip("?!.,;:()\"") for w in texto.lower().split()]
     palabras = [w for w in normalizar(texto).replace(",", " ").replace(".", " ").split() if w.isalpha()]
     es = sum(w in ES_WORDS and w not in PT_WORDS for w in palabras)
     pt = sum(w in PT_WORDS and w not in ES_WORDS for w in palabras)
+    en = sum(w in EN_WORDS and w not in ES_WORDS and w not in PT_WORDS for w in crudo)
     if "ñ" in texto.lower() or "¿" in texto:
         es += 2
     if any(c in texto.lower() for c in "ãõç") or "ção" in texto.lower():
         pt += 2
-    if abs(es - pt) >= 1 and max(es, pt) >= 1:
-        return "es" if es > pt else "pt"
+    votos = {"es": es, "pt": pt, "en": en}
+    mejor = max(votos, key=votos.get)
+    if votos[mejor] >= 1 and sorted(votos.values())[-2] < votos[mejor]:
+        return mejor
     if len(palabras) < 4 and previo:
         return previo
     try:

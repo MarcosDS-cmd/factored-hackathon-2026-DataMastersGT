@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DataMasters Bank · Online banking (demo)</title>
+<meta name="description" content="Customer portal demo: sign in, review your transactions and dispute a charge. An AI assistant resolves what it can within limits enforced in code and hands the rest to a specialist.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230e2b2a'/%3E%3Cpath d='M9 17l5 5 9-11' stroke='%239cc8bf' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,600..800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/styles.css">
+<link rel="stylesheet" href="/portal/portal.css">
+</head>
+<body class="portal">
+
+<!-- ============ SIGN IN ============ -->
+<div id="viewLogin" class="login">
+  <aside class="login-brand">
+    <svg class="guil" id="guilLogin" aria-hidden="true"></svg>
+    <a class="brand light" href="/portal" aria-label="DataMasters Bank">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M9 17l5 5 9-11" stroke="var(--ink)" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+      DataMasters Bank
+    </a>
+    <div class="login-pitch">
+      <h1>Don't recognize a charge? Sort it out in a few minutes.</h1>
+      <p>Pick the charge and our assistant checks it against your account. If it's within its limits it resolves it on the spot; if not, a specialist takes over with the full story, so you never repeat yourself.</p>
+    </div>
+    <p class="demo-note">Demo for the Factored AI &amp; Data Hackathon 2026. Customers and transactions are synthetic data from the challenge dataset. This is not a real bank.</p>
+  </aside>
+
+  <main class="login-main">
+    <form class="login-card" id="loginForm" novalidate>
+      <h2>Sign in to online banking</h2>
+      <p class="small">We verify you with the same two details you'd give at a branch.</p>
+      <label class="field">
+        <span>Document number</span>
+        <input id="fDoc" name="document" autocomplete="off" inputmode="text" required placeholder="e.g. 8778722">
+      </label>
+      <label class="field">
+        <span>Full name, as on your ID</span>
+        <input id="fName" name="full_name" autocomplete="off" required placeholder="e.g. Roberto Gustavo Sánchez Romero">
+      </label>
+      <p class="form-error" id="loginError" role="alert" hidden></p>
+      <button class="btn btn-primary wide" id="loginBtn" type="submit">Sign in</button>
+    </form>
+
+    <section class="demo-accounts" aria-labelledby="demoTitle">
+      <h3 id="demoTitle">Demo accounts</h3>
+      <p class="small">Click one to fill in the form. Each one leads the assistant to a different outcome.</p>
+      <div id="demoList" class="demo-list"></div>
+    </section>
+  </main>
+</div>
+
+<!-- ============ ACCOUNT ============ -->
+<div id="viewApp" class="app" hidden>
+  <header class="top">
+    <div class="wrap">
+      <a class="brand" href="/portal" aria-label="DataMasters Bank">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M9 17l5 5 9-11" stroke="var(--guilloche)" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+        DataMasters Bank
+      </a>
+      <span class="engine" id="engineBadge"></span>
+      <button class="btn btn-ghost sm" id="helpBtn" type="button" aria-controls="assistant" aria-expanded="false">Assistant</button>
+      <button class="btn btn-ghost sm" id="logoutBtn" type="button">Sign out</button>
+    </div>
+  </header>
+
+  <div class="wrap app-grid">
+    <main class="app-main">
+      <section class="hello">
+        <h1 id="hello">Hi</h1>
+        <p class="small" id="helloSub"></p>
+      </section>
+
+      <section id="banner" class="banner" hidden aria-live="polite"></section>
+
+      <section class="ledger" aria-labelledby="actTitle">
+        <div class="ledger-head">
+          <h2 id="actTitle">Recent activity</h2>
+          <span class="small" id="actRange"></span>
+        </div>
+        <ul class="tx-list" id="txList"></ul>
+        <p class="small ledger-foot">Something missing or a charge you don't see here? <button class="linkish" id="askBtn" type="button">Ask the assistant</button></p>
+      </section>
+
+      <section class="cases" aria-labelledby="casesTitle">
+        <h2 id="casesTitle">Your disputes</h2>
+        <div id="caseList"></div>
+      </section>
+    </main>
+
+    <aside class="assistant" id="assistant" aria-label="Dispute assistant">
+      <div class="as-head">
+        <div>
+          <strong>Dispute assistant</strong>
+          <span class="small" id="asSub">Resolves what it can, escalates what it can't</span>
+        </div>
+        <button class="icon-btn" id="closeAs" type="button" aria-label="Close assistant">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <div class="as-msgs" id="asMsgs" aria-live="polite"></div>
+      <div class="chips" id="asChips"></div>
+      <form class="composer" id="asForm">
+        <label class="sr-only" for="asInp">Message</label>
+        <textarea id="asInp" rows="1" placeholder="Write a message…"></textarea>
+        <button class="btn btn-primary" id="asSend" type="submit">Send</button>
+      </form>
+    </aside>
+  </div>
+</div>
+
+<script src="/portal/portal.js"></script>
+</body>
+</html>

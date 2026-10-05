@@ -131,6 +131,110 @@ def handoffs():
     return {"n": len(cola), "cola": cola[:50]}
 
 
+# --- customer portal (English UI, /portal) -----------------------------------
+import secrets  # noqa: E402
+from datetime import datetime, timedelta  # noqa: E402
+from fastapi import Header  # noqa: E402
+
+from agent_core import dispatch_tool_call  # noqa: E402
+
+PORTAL: dict[str, dict] = {}            # token -> {"conv_id", "transacciones"}
+FALLOS_LOGIN: dict[str, list] = {}      # document -> timestamps of failed logins (brute-force guard)
+MAX_FALLOS, VENTANA = 5, timedelta(minutes=15)
+
+
+class LoginIn(BaseModel):
+    document: str = Field(..., min_length=3, max_length=30)
+    full_name: str = Field(..., min_length=3, max_length=120)
+
+
+class PortalChatIn(BaseModel):
+    mensaje: str = Field(..., min_length=1, max_length=1000)
+
+
+def _sesion_portal(authorization: str | None):
+    token = (authorization or "").removeprefix("Bearer ").strip()
+    ses = PORTAL.get(token)
+    e = CONVERSACIONES.get(ses["conv_id"]) if ses else None
+    if not e or not e.session or not e.session.verificado:
+        raise HTTPException(401, "Your session has ended. Please sign in again.")
+    if e.session.expirada():
+        PORTAL.pop(token, None)
+        raise HTTPException(401, "Your session expired after 15 minutes of inactivity. Please sign in again.")
+    return token, ses, e
+
+
+def _vista_portal(ses: dict, e: EstadoConversacion) -> dict:
+    c = e.cliente_cache or {}
+    return {
+        "customer": {k: c.get(k) for k in ("first_name", "last_name", "segment", "country")},
+        "transactions": ses["transacciones"],
+        "cases": e.casos,
+        "handoff": e.handoff,
+        "messages": e.mensajes,
+        "today": str(_STATS.get("hoy_simulado"))[:10],
+        "engine": proveedor_configurado(),
+    }
+
+
+@app.post("/api/portal/login")
+def portal_login(body: LoginIn):
+    doc = "".join(ch for ch in body.document if ch.isalnum()).upper()
+    ahora = datetime.now()
+    recientes = [t for t in FALLOS_LOGIN.get(doc, []) if ahora - t < VENTANA]
+    if len(recientes) >= MAX_FALLOS:
+        raise HTTPException(429, "Too many failed attempts for this document. Try again in 15 minutes or call us.")
+    e = _estado(None, "Web")
+    r = dispatch_tool_call("identificar_cliente", {"document_number": body.document, "nombre_completo": body.full_name}, e)
+    if not r.get("ok"):
+        FALLOS_LOGIN[doc] = recientes + [ahora]
+        msg = {"CLIENTE_NO_ENCONTRADO": "We couldn't find an account with that document number.",
+               "DATOS_NO_COINCIDEN": "The name doesn't match the document on file.",
+               "CLIENTE_INACTIVO": "This account isn't active. Please contact a branch or call us."}.get(r.get("motivo"), r.get("mensaje"))
+        raise HTTPException(401, msg)
+    FALLOS_LOGIN.pop(doc, None)
+    c = r["cliente"]
+    e.idioma = "en"
+    e.contexto_extra = (
+        "PORTAL CONTEXT: the customer is ALREADY authenticated in the bank's online portal "
+        f"(customer_id {c['customer_id']}, name {c['first_name']} {c.get('last_name', '')}). Do NOT ask for their document or "
+        "name and do NOT call identificar_cliente again; use this customer_id in the tools. The portal is in English: reply "
+        "in English unless the customer writes in Spanish or Portuguese. When the customer cites a transaction_id, locate it "
+        "with consultar_transacciones_recientes (dias 90), then call calcular_riesgo_caso (categoria 'Transactions', canal 'Web') "
+        "and abrir_caso_disputa for that transaction_id.")
+    t = dispatch_tool_call("consultar_transacciones_recientes", {"customer_id": c["customer_id"], "dias": 90}, e)
+    txns = [x for x in t.get("transacciones", [])]
+    token = secrets.token_urlsafe(24)
+    PORTAL[token] = {"conv_id": e.conv_id, "transacciones": txns}
+    return {"token": token, **_vista_portal(PORTAL[token], e)}
+
+
+@app.get("/api/portal/me")
+def portal_me(authorization: str | None = Header(None)):
+    _, ses, e = _sesion_portal(authorization)
+    return _vista_portal(ses, e)
+
+
+@app.post("/api/portal/chat")
+def portal_chat(body: PortalChatIn, authorization: str | None = Header(None)):
+    _, ses, e = _sesion_portal(authorization)
+    r = turno(e, body.mensaje.strip())
+    return {"reply": r["respuesta"], "engine": r["modo"], "ms": r["ms"], **_vista_portal(ses, e)}
+
+
+@app.post("/api/portal/logout")
+def portal_logout(authorization: str | None = Header(None)):
+    token = (authorization or "").removeprefix("Bearer ").strip()
+    PORTAL.pop(token, None)
+    return {"ok": True}
+
+
+@app.get("/portal")
+@app.get("/portal/")
+def portal_index():
+    return FileResponse(os.path.join(WEB, "portal", "index.html"))
+
+
 # --- static website ----------------------------------------------------------
 @app.get("/")
 def index():

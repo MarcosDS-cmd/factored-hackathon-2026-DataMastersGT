@@ -46,7 +46,11 @@ def analizar(mensaje: str, idioma_previo: str | None = None) -> dict:
     plano = unicodedata.normalize("NFKD", mensaje).encode("ascii", "ignore").decode().lower()
     out = {"idioma": detectar_idioma(mensaje, idioma_previo), "inyeccion": bool(RE_INYECCION.search(plano))}
     try:
-        out.update(predecir_intencion(mensaje))
+        if out["idioma"] == "en":
+            from ml.intent_classifier import intencion_ingles
+            out.update(intencion_ingles(mensaje))
+        else:
+            out.update(predecir_intencion(mensaje))
     except Exception as e:  # model artifacts missing
         out.update({"intencion": None, "confianza": 0.0, "error": str(e)})
     return out

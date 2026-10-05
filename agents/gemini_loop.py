@@ -55,7 +55,8 @@ def correr_conversacion_real(mensaje_usuario: str, estado: EstadoConversacion, h
 
     client = genai.Client(api_key=api_key)
     tool = types.Tool(function_declarations=TOOL_DECLARATIONS)
-    config = types.GenerateContentConfig(system_instruction=SYSTEM_INSTRUCTION, tools=[tool])
+    sistema = SYSTEM_INSTRUCTION + ("\n\n" + estado.contexto_extra if estado.contexto_extra else "")
+    config = types.GenerateContentConfig(system_instruction=sistema, tools=[tool])
 
     contents = historial or []
     contents.append(types.Content(role="user", parts=[types.Part(text=mensaje_usuario)]))

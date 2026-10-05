@@ -49,7 +49,8 @@ def correr_conversacion_real(mensaje_usuario: str, estado: EstadoConversacion, h
 
     for _ in range(8):  # safety limit
         t0 = time.perf_counter()
-        resp = client.messages.create(model=modelo, max_tokens=1024, system=SYSTEM_INSTRUCTION,
+        sistema = SYSTEM_INSTRUCTION + ("\n\n" + estado.contexto_extra if estado.contexto_extra else "")
+        resp = client.messages.create(model=modelo, max_tokens=1024, system=sistema,
                                       tools=CLAUDE_TOOLS, messages=mensajes)
         ms = (time.perf_counter() - t0) * 1000
         bloques_tool = [b for b in resp.content if b.type == "tool_use"]

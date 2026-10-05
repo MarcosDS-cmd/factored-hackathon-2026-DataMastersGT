@@ -115,7 +115,7 @@ TOOL_DECLARATIONS = [
 ]
 
 SYSTEM_INSTRUCTION = """Eres el asistente de resolucion de disputas por cargos no reconocidos de un banco latinoamericano.
-Respondes en el MISMO idioma en el que te escribe el cliente (espanol o portugues) - nunca mezclas idiomas.
+Respondes en el MISMO idioma en el que te escribe el cliente (espanol, portugues o ingles) - nunca mezclas idiomas.
 
 Reglas de flujo, en orden:
 1. Antes de cualquier consulta, identifica al cliente con identificar_cliente: pidele su numero de documento y su nombre
@@ -153,6 +153,7 @@ class EstadoConversacion:
         self.handoff: dict | None = None  # package for the human agent
         self.mensajes: list[dict] = []   # visible chat transcript
         self.creado = datetime.now().isoformat(timespec="seconds")
+        self.contexto_extra: str | None = None  # e.g. "customer already authenticated in the portal" (added to the system prompt)
 
     # -- audit helpers -------------------------------------------------------
     def registrar(self, tipo: str, **datos):

@@ -218,7 +218,7 @@ def _activar_sesion(row: dict, session: Session):
     session.customer_id = row["customer_id"]
     session.verificado = True
     session.tocar()
-    cliente = {k: row[k] for k in ("customer_id", "first_name", "segment", "country", "customer_status",
+    cliente = {k: row[k] for k in ("customer_id", "first_name", "last_name", "segment", "country", "customer_status",
                                    "credit_score", "estimated_monthly_income")}
     return {"ok": True, "cliente": cliente}
 

@@ -67,7 +67,35 @@ TXT = {
         "sesion": "Sua sessão expirou por inatividade. Por segurança, pode confirmar novamente seu documento e nome completo?",
         "seleccion_invalida": "Não identifiquei qual das cobranças é. Responda com o número da lista (1–{n}).",
     },
+    "en": {
+        "pedir_id": "Happy to help with your dispute. To protect your account, could you share your document number and your full name?",
+        "pedir_doc": "Thanks, {nombre}. Could you also share your document number?",
+        "pedir_nombre": "Thanks. Could you confirm your full name as it appears on your document?",
+        "id_fallo": "I couldn't verify your identity with those details ({motivo}). Please check the document number and full name. {n} attempt(s) left.",
+        "id_bloqueo": "I couldn't verify your identity after several attempts. For your security I'm handing you over to a specialist (reference {ref}).",
+        "id_inactivo": "Your account isn't active, so a specialist needs to handle this case. I've already handed it over (reference {ref}).",
+        "id_ok": "Thanks {nombre}, your identity is verified. ",
+        "pedir_monto": "What's the amount of the charge you don't recognize? If you're not sure, these are your most recent transactions:\n{lista}\nYou can reply with the number from the list.",
+        "sin_movs": "What's the approximate amount of the charge you don't recognize?",
+        "no_encontrado": "I can't find any charge of about {monto} on your account, and I won't open a case for a charge I can't confirm. Can you tell me the date or the merchant, or would you prefer to talk to a specialist?",
+        "varias": "I found {n} similar charges:\n{lista}\nWhich one don't you recognize? Reply with the number.",
+        "AUTO_APROBADO": "I opened case {caso} for the {monto} charge at {comercio}. It's within the automatic resolution limit, so your refund is **approved**. You'll see it in your account within 24–48 hours.",
+        "PENDIENTE_REVISION": "I opened case {caso} for the {monto} charge at {comercio}. I can't approve this amount automatically, so it's now **under standard review**; we'll get back to you within 5 business days.",
+        "ESCALADO_A_HUMANO": "I opened case {caso} for the {monto} charge at {comercio}. This case needs **review by a specialist** ({motivo}). I've passed on the full context, so you won't have to repeat anything.",
+        "no_soportado": "This assistant only handles disputes about charges you don't recognize, and your message seems to be about something else ({intencion}). I don't want to guess an answer: would you like me to connect you with a specialist?",
+        "humano": "Understood. I'm connecting you with a specialist, along with the full context of this conversation (reference {ref}). They'll contact you shortly.",
+        "inyeccion": "I can't change my rules or the approval limits: those decisions are enforced by the bank's system, not by me. ",
+        "decision_final": "The decision on case {caso} ({decision}) is final and I can't change it. If you disagree, I can connect you with a specialist.",
+        "cerrado": "Your case {caso} is already registered. Is there another charge you'd like to dispute?",
+        "sesion": "Your session expired due to inactivity. For your security, please sign in again.",
+        "seleccion_invalida": "I couldn't tell which charge you mean. Reply with the number from the list (1–{n}).",
+    },
 }
+
+MOTIVOS_EN = {"Amount": "amount above the limit", "Reception channel": "regulatory channel",
+              "Suspected fraud": "suspected fraud", "High risk": "high risk"}
+INTENT_EN = {"Product": "products", "Complaint": "a service complaint", "Technical": "a technical issue",
+             "Commercial": "promotions", "Retention": "closing products"}
 
 MOTIVOS_ES = {"Amount": "monto superior al límite", "Reception channel": "canal regulador",
               "Suspected fraud": "sospecha de fraude", "High risk": "riesgo alto"}
@@ -78,12 +106,13 @@ INTENT_ES = {"Product": "productos", "Complaint": "una queja de servicio", "Tech
 INTENT_PT = {"Product": "produtos", "Complaint": "uma reclamação de atendimento", "Technical": "um problema técnico",
              "Commercial": "promoções", "Retention": "cancelamento de produtos"}
 
-RE_HUMANO = re.compile(r"\b(humano|persona|agente|asesor|supervisor|atendente|pessoa|alguien real|operador)\b")
-RE_ENOJO = re.compile(r"(verguenza|vergonha|harto|cansad|pesimo|pessimo|inaceptable|inaceitavel|estafa|robo|roubo|ladr|demand|abogado|advogado|superintendencia|banco central|procon|condusef)")
-RE_INYECCION = re.compile(r"(ignora|ignore|olvida|esquece|desconsidera|sin limite|sem limite|override|system prompt|instrucciones|instrucoes|eres un|voce e um|modo admin|apruebalo ya|aprova agora|aprueba igual|aprove mesmo assim|soy el gerente|sou o gerente)")
-RE_DOC = re.compile(r"\b([A-Za-z]{0,3}-?\d[\d.\-]{5,14}\d)\b")
-RE_NOMBRE = re.compile(r"(?:me llamo|mi nombre es|soy|nombre:|me chamo|meu nome e|meu nome é|sou|nome:)\s+([A-Za-zÁÉÍÓÚÑÜáéíóúñüÂÊÔÃÕÇâêôãõç' ]{3,60})", re.I)
-RE_MONTO = re.compile(r"(r\$|us\$|\$|usd|cop|mxn|ars|brl)?\s*(\d{1,3}(?:[.,]\d{3})+(?:[.,]\d{1,2})?|\d+(?:[.,]\d{1,2})?)\s*(dolares|dólares|usd|pesos|reais|cop|mxn|ars)?", re.I)
+RE_HUMANO = re.compile(r"\b(humano|persona|agente|asesor|supervisor|atendente|pessoa|alguien real|operador|human|person|agent|representative|specialist|real person)\b")
+RE_ENOJO = re.compile(r"(verguenza|vergonha|harto|cansad|pesimo|pessimo|inaceptable|inaceitavel|estafa|robo|roubo|ladr|demand|abogado|advogado|superintendencia|banco central|procon|condusef|ridiculous|unacceptable|outrageous|lawyer|sue you|scam|terrible service)")
+RE_INYECCION = re.compile(r"(ignora|ignore|olvida|esquece|desconsidera|sin limite|sem limite|override|system prompt|instrucciones|instrucoes|eres un|voce e um|modo admin|apruebalo ya|aprova agora|aprueba igual|aprove mesmo assim|soy el gerente|sou o gerente|you are now|disregard|approve it anyway|approve it now|i am the manager|i'm the manager|admin mode)")
+RE_TRX = re.compile(r"\bTRX-[A-Z0-9]{10,30}\b")
+RE_DOC = re.compile(r"\b(?!TRX)([A-Za-z]{0,3}-?\d[\d.\-]{5,14}\d)\b")
+RE_NOMBRE = re.compile(r"(?:me llamo|mi nombre es|soy|nombre:|me chamo|meu nome e|meu nome é|sou|nome:|my name is|i am|i'm)\s+([A-Za-zÁÉÍÓÚÑÜáéíóúñüÂÊÔÃÕÇâêôãõç' ]{3,60})", re.I)
+RE_MONTO = re.compile(r"(r\$|us\$|\$|usd|cop|mxn|ars|brl)?\s*(\d{1,3}(?:[.,]\d{3})+(?:[.,]\d{1,2})?|\d+(?:[.,]\d{1,2})?)\s*(dolares|dólares|dollars|usd|pesos|reais|cop|mxn|ars)?", re.I)
 STOP_NOMBRE = re.compile(r"\s+(?:y|e|con|com|mi|meu|minha|documento|dni|cc|ce|pasaporte|passaporte|numero|número|cpf|rg|quiero|quero|tengo|tenho)\b.*$", re.I)
 
 
@@ -107,7 +136,8 @@ def extraer_documento(texto: str):
 
 RE_MAYUS = re.compile(r"\b([A-ZÁÉÍÓÚÑÜÂÊÔÃÕÇ][a-záéíóúñüâêôãõç']+(?:\s+(?:de\s+|del\s+|da\s+|dos\s+)?[A-ZÁÉÍÓÚÑÜÂÊÔÃÕÇ][a-záéíóúñüâêôãõç']+)+)")
 NO_NOMBRE = {"hola", "buenas", "buenos", "ola", "olá", "oi", "bom", "boa", "es", "sou", "soy", "mi", "meu", "el", "la",
-             "documento", "dni", "gracias", "obrigado", "tardes", "dias", "días", "noches", "tarde", "dia"}
+             "documento", "dni", "gracias", "obrigado", "tardes", "dias", "días", "noches", "tarde", "dia",
+             "hi", "hello", "my", "i", "thanks", "document"}
 
 
 def extraer_nombre(texto: str):
@@ -137,7 +167,7 @@ def extraer_monto(texto: str, doc: str | None = None):
         if v <= 0 or v > 1_000_000_000:  # COP amounts reach tens of millions
             continue
         contexto = _plain(t[max(0, m.start() - 25):m.start()])
-        con_marca = bool(cur_pre or cur_post) or re.search(r"(cargo|cobro|cobranca|pago|pagamento|compra|monto|valor|retiro|de)\s*$", contexto)
+        con_marca = bool(cur_pre or cur_post) or re.search(r"(cargo|cobro|cobranca|pago|pagamento|compra|monto|valor|retiro|de|charge|payment|purchase|amount|of|for|was)\s*$", contexto)
         if re.fullmatch(r"\d{1,2}", num) and not (cur_pre or cur_post):
             continue  # "el 3 de junio", list choices
         if con_marca:
@@ -150,7 +180,8 @@ def _fmt_monto(v) -> str:
     return f"US${float(v):,.2f}" if v is not None else "—"
 
 
-TIPOS = {"es": {"Withdrawal": "Retiro", "Transfer": "Transferencia", "Purchase": "Compra", "Payment": "Pago", "Deposit": "Depósito"},
+TIPOS = {"en": {"Withdrawal": "Withdrawal", "Transfer": "Transfer", "Purchase": "Purchase", "Payment": "Payment", "Deposit": "Deposit"},
+         "es": {"Withdrawal": "Retiro", "Transfer": "Transferencia", "Purchase": "Compra", "Payment": "Pago", "Deposit": "Depósito"},
          "pt": {"Withdrawal": "Saque", "Transfer": "Transferência", "Purchase": "Compra", "Payment": "Pagamento", "Deposit": "Depósito"}}
 
 
@@ -171,7 +202,7 @@ class AgenteReglas:
     """Deterministic agent. All memory lives in EstadoConversacion (server side)."""
 
     def responder(self, mensaje: str, estado: EstadoConversacion, nlu: dict) -> str:
-        lang = estado.idioma or "es"
+        lang = estado.idioma if estado.idioma in TXT else "es"
         tx = TXT[lang]
         plain = _plain(mensaje)
         pre = ""
@@ -220,16 +251,28 @@ class AgenteReglas:
                 if r.get("motivo") == "CLIENTE_INACTIVO":
                     h = dispatch_tool_call("escalar_a_humano", {"caso_id": "", "motivo": "Cliente inactivo"}, estado)
                     return tx["id_inactivo"].format(ref=estado.handoff["handoff_id"])
-                motivo = {"CLIENTE_NO_ENCONTRADO": "documento no encontrado" if lang == "es" else "documento não encontrado",
-                          "DATOS_NO_COINCIDEN": "el nombre no coincide" if lang == "es" else "o nome não confere"}.get(r["motivo"], r["motivo"])
+                motivo = {"es": {"CLIENTE_NO_ENCONTRADO": "documento no encontrado", "DATOS_NO_COINCIDEN": "el nombre no coincide"},
+                          "pt": {"CLIENTE_NO_ENCONTRADO": "documento não encontrado", "DATOS_NO_COINCIDEN": "o nome não confere"},
+                          "en": {"CLIENTE_NO_ENCONTRADO": "document not found", "DATOS_NO_COINCIDEN": "the name doesn't match"},
+                          }[lang].get(r["motivo"], r["motivo"])
                 return tx["id_fallo"].format(motivo=motivo, n=r.get("intentos_restantes", 1))
             pre += tx["id_ok"].format(nombre=r["cliente"]["first_name"].split()[0].title())
             return pre + self._buscar(estado, mem, tx, lang)
 
+        # 2b) the customer points at a specific transaction id (e.g. the portal's "Dispute" button)
+        m_trx = RE_TRX.search(mensaje)
+        if m_trx:
+            r = dispatch_tool_call("consultar_transacciones_recientes",
+                                   {"customer_id": estado.session.customer_id, "dias": 90}, estado)
+            txn = next((t for t in r.get("transacciones", []) if t["transaction_id"] == m_trx.group(0)), None) if r.get("ok") else None
+            if txn:
+                mem["monto"] = mem["candidatas"] = mem["lista_movs"] = None
+                return pre + self._abrir(estado, txn, tx, lang)
+
         # 3) verified: a case already open in this conversation?
         if estado.casos and not monto and not mem["candidatas"] and not mem["lista_movs"]:
             c = estado.casos[-1]
-            if nlu.get("inyeccion") or re.search(r"(aprueb|aprov|reembols|devuel|insist|por que|por que no|cambia|muda)", plain):
+            if nlu.get("inyeccion") or re.search(r"(aprueb|aprov|reembols|devuel|insist|por que|por que no|cambia|muda|approve|refund|why|change|reconsider)", plain):
                 return pre + tx["decision_final"].format(caso=c["caso_id"], decision=c["decision"])
             if nlu.get("intencion") not in ("Transactional",) and nlu.get("confianza", 0) >= 0.6:
                 return pre + self._no_soportado(estado, nlu, tx, lang)
@@ -270,7 +313,7 @@ class AgenteReglas:
     # -----------------------------------------------------------------------
     def _no_soportado(self, estado, nlu, tx, lang):
         estado.registrar("fuera_de_alcance", intencion=nlu.get("intencion"), confianza=nlu.get("confianza"))
-        nombre = (INTENT_ES if lang == "es" else INTENT_PT).get(nlu.get("intencion"), nlu.get("intencion"))
+        nombre = {"es": INTENT_ES, "pt": INTENT_PT, "en": INTENT_EN}[lang].get(nlu.get("intencion"), nlu.get("intencion"))
         return tx["no_soportado"].format(intencion=nombre)
 
     def _buscar(self, estado, mem, tx, lang):
@@ -306,7 +349,7 @@ class AgenteReglas:
                                                       "canal_recepcion": estado.canal}, estado)
         if not r.get("ok"):
             return r.get("mensaje", "")
-        mapa = MOTIVOS_ES if lang == "es" else MOTIVOS_PT
+        mapa = {"es": MOTIVOS_ES, "pt": MOTIVOS_PT, "en": MOTIVOS_EN}[lang]
         motivos = ", ".join(next((v for k, v in mapa.items() if m.startswith(k)), m) for m in r["motivos_escalacion"])
         return tx[r["decision"]].format(caso=r["caso_id"], monto=_fmt_monto(r["monto_usd"]),
                                         comercio=describir(txn, lang), motivo=motivos)

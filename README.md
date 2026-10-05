@@ -20,6 +20,14 @@ uvicorn api.main:app --port 8000       # abrir http://localhost:8000
 
 La web tiene seis secciones: el problema (EDA), una **demo en vivo** con traza de auditoría y vista del agente humano, cómo decide la política (con simulador), las métricas del reto, los modelos y las limitaciones. Si se abre sin backend (por ejemplo `web/` en un hosting estático), el chat reproduce conversaciones grabadas de la evaluación.
 
+### Portal del cliente (`/portal`, en inglés)
+
+Es la experiencia del cliente final. Inicia sesión con documento + nombre (la misma verificación del agente), ve sus movimientos de los últimos 90 días y presiona **Dispute** en un cargo. El agente lo resuelve en ese momento (reembolso aprobado o revisión estándar) o lo escala a un especialista con todo el contexto. El cliente ve el estado de cada disputa. La sección *Demo accounts* precarga clientes reales del dataset, uno por escenario.
+
+- Corre en el mismo servidor: `http://localhost:8000/portal` en local o `https://<tu-servicio>.onrender.com/portal` en Render.
+- Seguridad: la sesión es un token aleatorio del lado del servidor, expira tras 15 min de inactividad y se bloquea tras 5 intentos fallidos por documento en 15 min.
+- El agente responde en el idioma del cliente (inglés, español o portugués). En inglés, la intención se detecta con palabras clave, porque el clasificador ML está entrenado en ES/PT.
+
 ## Estructura
 
 | Carpeta | Qué hay |
@@ -34,6 +42,7 @@ La web tiene seis secciones: el problema (EDA), una **demo en vivo** con traza d
 | `eval/security_tests.py` | 17 ataques de un modelo manipulado contra la puerta de permisos. |
 | `api/main.py` | Backend FastAPI. La API key solo existe en el servidor. |
 | `web/` | El sitio, en HTML/CSS/JS sin build, y los datos que muestra (`web/data/*.json`). |
+| `web/portal/` | Portal del cliente en inglés (login, movimientos, disputas, asistente). |
 | `notebooks/` | `01_eda`, `02_priority_model`, `03_intent_classifier`: el análisis y los modelos, ejecutados con sus resultados. |
 | `hackathon-data/` | Muestra del dataset del reto (CSV particionados por fecha). |
 | `data/subset/` | Las tablas que usa el agente, ya limpias, en parquet (16 MB, para el deploy). |

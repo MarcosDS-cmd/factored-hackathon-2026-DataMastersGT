@@ -48,7 +48,8 @@ def correr_conversacion_real(mensaje_usuario: str, estado: EstadoConversacion, h
     Every model call is recorded in estado.traza (latency + tokens) next to the tool calls."""
     modelo = modelo or MODELO_DEFAULT
     client = _cliente()
-    mensajes = historial or [{"role": "system", "content": SYSTEM_INSTRUCTION}]
+    sistema = SYSTEM_INSTRUCTION + ("\n\n" + estado.contexto_extra if estado.contexto_extra else "")
+    mensajes = historial or [{"role": "system", "content": sistema}]
     mensajes.append({"role": "user", "content": mensaje_usuario})
 
     for _ in range(8):  # safety limit
