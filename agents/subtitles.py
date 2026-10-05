@@ -98,7 +98,23 @@ def agente_en(texto: str, idioma: str | None) -> str | None:
 # Customer messages: patterns + phrases
 # ---------------------------------------------------------------------------
 _N = r"[A-Za-zÁÉÍÓÚÑÜáéíóúñüÂÊÔÃÕÇâêôãõç' ]{3,60}?"
+def _dispute_es(m):
+    return f"I don't recognize this charge: {m.group(1)} at {_desc_en(m.group(2))} on {m.group(3)} ({m.group(4)})"
+
+
+def _desc_en(d: str) -> str:
+    """'Retiro · ATM' / 'Saque · ATM' -> 'Withdrawal · ATM' (merchant names stay)."""
+    p = d.split(" · ")
+    for lg in ("es", "pt"):
+        if p[0] in _TIPO_EN[lg]:
+            p[0] = _TIPO_EN[lg][p[0]]
+    return " · ".join(p)
+
+
+_TIPO_EN = {lg: {v: TIPOS["en"][k] for k, v in TIPOS[lg].items()} for lg in ("es", "pt")}
 _RULES = [
+    (r"No reconozco este cargo: (US\$[\d.,]+) en (.+?) el (\d{4}-\d\d-\d\d) \((TRX-\w+)\)", _dispute_es),
+    (r"Não reconheço esta cobrança: (US\$[\d.,]+) em (.+?) em (\d{4}-\d\d-\d\d) \((TRX-\w+)\)", _dispute_es),
     (rf"(?i)\b(?:me llamo|mi nombre es|soy|me chamo|meu nome é|meu nome e|sou)\s+({_N}),?\s*(?:y |e )?(?:mi |meu |el |o )?documento(?: es| é)?\s+([\w.\-]+)",
      r"I'm \1, document \2"),
     (rf"(?i)\b(?:me llamo|mi nombre es|soy|me chamo|meu nome é|sou)\s+({_N})\s+(?:y |e )?(?:el |o )?documento\s+([\w.\-]+)", r"I'm \1, document \2"),
@@ -116,6 +132,12 @@ _RULES = [
     (r"(?i)\bo cobro é de (.+)", r"The charge is \1"),
 ]
 _PHRASES = {
+    "hay un cargo de $99,999 que yo no hice": "There's a charge of $99,999 I didn't make",
+    "há uma cobrança de $99,999 que eu não fiz": "There's a charge of $99,999 I didn't make",
+    "¿por qué escalaron mi caso?": "Why was my case escalated?",
+    "por que escalaram meu caso?": "Why was my case escalated?",
+    "¿pueden aprobarlo más rápido?": "Can you approve it faster?",
+    "podem aprovar mais rápido?": "Can you approve it faster?",
     "hola, tengo un cargo que no reconozco": "Hi, there's a charge I don't recognize",
     "olá, tenho uma cobrança que não reconheço": "Hi, there's a charge I don't recognize",
     "hola! quiero reportar un cargo desconocido": "Hi! I want to report an unknown charge",
