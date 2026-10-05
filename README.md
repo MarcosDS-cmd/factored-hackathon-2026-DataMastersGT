@@ -192,7 +192,9 @@ Fixes made during the final review, kept here because they affect trust in the r
 
 **DataMastersGT** · Guatemala 🇬🇹
 
-- Marcos Diaz
+- Marcos Diaz ([@MarcosDS-cmd](https://github.com/MarcosDS-cmd))
 - Daniel Machic
+
+> **Note on contributors:** the GitHub accounts [MarcosDiaz1409](https://github.com/MarcosDiaz1409) and [MarcosDS-cmd](https://github.com/MarcosDS-cmd) belong to the **same person, Marcos Diaz**. Some commits were made from his institutional account before he switched to his personal one. They are not two different contributors.
 
 *Factored AI & Data Hackathon 2026*
