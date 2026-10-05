@@ -152,10 +152,20 @@ MAX_FALLOS, VENTANA = 5, timedelta(minutes=15)
 class LoginIn(BaseModel):
     document: str = Field(..., min_length=3, max_length=30)
     full_name: str = Field(..., min_length=3, max_length=120)
+    lang: str = "en"  # portal UI language: es | en | pt
 
 
 class PortalChatIn(BaseModel):
     mensaje: str = Field(..., min_length=1, max_length=1000)
+    lang: str | None = None
+
+
+IDIOMAS = {"es": "Spanish", "en": "English", "pt": "Portuguese"}
+
+
+def _err(status: int, code: str, message: str):
+    """Errors carry a code so the portal can show them in the customer's language."""
+    raise HTTPException(status, {"code": code, "message": message})
 
 
 def _sesion_portal(authorization: str | None):
@@ -163,10 +173,10 @@ def _sesion_portal(authorization: str | None):
     ses = PORTAL.get(token)
     e = CONVERSACIONES.get(ses["conv_id"]) if ses else None
     if not e or not e.session or not e.session.verificado:
-        raise HTTPException(401, "Your session has ended. Please sign in again.")
+        _err(401, "SESSION_ENDED", "Your session has ended. Please sign in again.")
     if e.session.expirada():
         PORTAL.pop(token, None)
-        raise HTTPException(401, "Your session expired after 15 minutes of inactivity. Please sign in again.")
+        _err(401, "SESSION_EXPIRED", "Your session expired after 15 minutes of inactivity. Please sign in again.")
     return token, ses, e
 
 
@@ -189,7 +199,7 @@ def portal_login(body: LoginIn):
     ahora = datetime.now()
     recientes = [t for t in FALLOS_LOGIN.get(doc, []) if ahora - t < VENTANA]
     if len(recientes) >= MAX_FALLOS:
-        raise HTTPException(429, "Too many failed attempts for this document. Try again in 15 minutes or call us.")
+        _err(429, "TOO_MANY", "Too many failed attempts for this document. Try again in 15 minutes or call us.")
     e = _estado(None, "Web")
     r = dispatch_tool_call("identificar_cliente", {"document_number": body.document, "nombre_completo": body.full_name}, e)
     if not r.get("ok"):
@@ -197,15 +207,17 @@ def portal_login(body: LoginIn):
         msg = {"CLIENTE_NO_ENCONTRADO": "We couldn't find an account with that document number.",
                "DATOS_NO_COINCIDEN": "The name doesn't match the document on file.",
                "CLIENTE_INACTIVO": "This account isn't active. Please contact a branch or call us."}.get(r.get("motivo"), r.get("mensaje"))
-        raise HTTPException(401, msg)
+        _err(401, r.get("motivo") or "LOGIN_FAILED", msg)
     FALLOS_LOGIN.pop(doc, None)
     c = r["cliente"]
-    e.idioma = "en"
+    lang = body.lang if body.lang in IDIOMAS else "en"
+    e.idioma = lang
     e.contexto_extra = (
         "PORTAL CONTEXT: the customer is ALREADY authenticated in the bank's online portal "
         f"(customer_id {c['customer_id']}, name {c['first_name']} {c.get('last_name', '')}). Do NOT ask for their document or "
-        "name and do NOT call identificar_cliente again; use this customer_id in the tools. The portal is in English: reply "
-        "in English unless the customer writes in Spanish or Portuguese. When the customer cites a transaction_id, locate it "
+        "name and do NOT call identificar_cliente again; use this customer_id in the tools. "
+        f"The portal is shown in {IDIOMAS[lang]}: reply in {IDIOMAS[lang]} unless the customer writes in another language. "
+        "When the customer cites a transaction_id, locate it "
         "with consultar_transacciones_recientes (dias 90), then call calcular_riesgo_caso (categoria 'Transactions', canal 'Web') "
         "and abrir_caso_disputa for that transaction_id.")
     t = dispatch_tool_call("consultar_transacciones_recientes", {"customer_id": c["customer_id"], "dias": 90}, e)
@@ -224,6 +236,8 @@ def portal_me(authorization: str | None = Header(None)):
 @app.post("/api/portal/chat")
 def portal_chat(body: PortalChatIn, authorization: str | None = Header(None)):
     _, ses, e = _sesion_portal(authorization)
+    if body.lang in IDIOMAS:
+        e.idioma = body.lang  # the language the customer chose in the portal; a clearly different message still switches it
     r = turno(e, body.mensaje.strip())
     return {"reply": r["respuesta"], "engine": r["modo"], "ms": r["ms"], **_vista_portal(ses, e)}
 

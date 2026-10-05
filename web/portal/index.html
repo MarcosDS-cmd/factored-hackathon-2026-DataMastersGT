@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-default-lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -23,31 +23,32 @@
       LATAM Bank
     </a>
     <div class="login-pitch">
-      <h1>Don't recognize a charge? Sort it out in a few minutes.</h1>
-      <p>Pick the charge and our assistant checks it against your account. If it's within its limits it resolves it on the spot; if not, a specialist takes over with the full story, so you never repeat yourself.</p>
+      <h1 data-i18n="p.pitch.h">Don't recognize a charge? Sort it out in a few minutes.</h1>
+      <p data-i18n="p.pitch.p">Pick the charge and our assistant checks it against your account. If it's within its limits it resolves it on the spot; if not, a specialist takes over with the full story, so you never repeat yourself.</p>
     </div>
-    <p class="demo-note">Demo for the Factored AI &amp; Data Hackathon 2026. Customers and transactions are synthetic data from the challenge dataset. This is not a real bank.</p>
+    <p class="demo-note" data-i18n="p.demoNote">Demo for the Factored AI &amp; Data Hackathon 2026. Customers and transactions are synthetic data from the challenge dataset. This is not a real bank.</p>
   </aside>
 
   <main class="login-main">
+    <div class="lang-switch login-lang"></div>
     <form class="login-card" id="loginForm" novalidate>
-      <h2>Sign in to online banking</h2>
-      <p class="small">We verify you with the same two details you'd give at a branch.</p>
+      <h2 data-i18n="p.signin.h">Sign in to online banking</h2>
+      <p class="small" data-i18n="p.signin.sub">We verify you with the same two details you'd give at a branch.</p>
       <label class="field">
-        <span>Document number</span>
-        <input id="fDoc" name="document" autocomplete="off" inputmode="text" required placeholder="e.g. 8778722">
+        <span data-i18n="p.doc">Document number</span>
+        <input id="fDoc" name="document" autocomplete="off" inputmode="text" required placeholder="e.g. 8778722" data-i18n-attr="placeholder:p.doc.ph">
       </label>
       <label class="field">
-        <span>Full name, as on your ID</span>
-        <input id="fName" name="full_name" autocomplete="off" required placeholder="e.g. Roberto Gustavo Sánchez Romero">
+        <span data-i18n="p.name">Full name, as on your ID</span>
+        <input id="fName" name="full_name" autocomplete="off" required placeholder="e.g. Roberto Gustavo Sánchez Romero" data-i18n-attr="placeholder:p.name.ph">
       </label>
       <p class="form-error" id="loginError" role="alert" hidden></p>
-      <button class="btn btn-primary wide" id="loginBtn" type="submit">Sign in</button>
+      <button class="btn btn-primary wide" id="loginBtn" type="submit" data-i18n="p.signin">Sign in</button>
     </form>
 
     <section class="demo-accounts" aria-labelledby="demoTitle">
-      <h3 id="demoTitle">Demo accounts</h3>
-      <p class="small">Click one to fill in the form. Each one leads the assistant to a different outcome.</p>
+      <h3 id="demoTitle" data-i18n="p.demo.h">Demo accounts</h3>
+      <p class="small" data-i18n="p.demo.sub">Click one to fill in the form. Each one leads the assistant to a different outcome.</p>
       <div id="demoList" class="demo-list"></div>
     </section>
   </main>
@@ -62,8 +63,9 @@
         LATAM Bank
       </a>
       <span class="engine" id="engineBadge"></span>
-      <button class="btn btn-ghost sm" id="helpBtn" type="button" aria-controls="assistant" aria-expanded="false">Assistant</button>
-      <button class="btn btn-ghost sm" id="logoutBtn" type="button">Sign out</button>
+      <div class="lang-switch"></div>
+      <button class="btn btn-ghost sm" id="helpBtn" type="button" aria-controls="assistant" aria-expanded="false" data-i18n="p.assistantBtn">Assistant</button>
+      <button class="btn btn-ghost sm" id="logoutBtn" type="button" data-i18n="p.signout">Sign out</button>
     </div>
   </header>
 
@@ -78,40 +80,42 @@
 
       <section class="ledger" aria-labelledby="actTitle">
         <div class="ledger-head">
-          <h2 id="actTitle">Recent activity</h2>
+          <h2 id="actTitle" data-i18n="p.activity">Recent activity</h2>
           <span class="small" id="actRange"></span>
         </div>
         <ul class="tx-list" id="txList"></ul>
-        <p class="small ledger-foot">Something missing or a charge you don't see here? <button class="linkish" id="askBtn" type="button">Ask the assistant</button></p>
+        <p class="small ledger-foot"><span data-i18n="p.missing">Something missing or a charge you don't see here?</span> <button class="linkish" id="askBtn" type="button" data-i18n="p.ask">Ask the assistant</button></p>
       </section>
 
       <section class="cases" aria-labelledby="casesTitle">
-        <h2 id="casesTitle">Your disputes</h2>
+        <h2 id="casesTitle" data-i18n="p.disputes">Your disputes</h2>
         <div id="caseList"></div>
       </section>
     </main>
 
-    <aside class="assistant" id="assistant" aria-label="Dispute assistant">
+    <aside class="assistant" id="assistant" aria-label="Dispute assistant" data-i18n-attr="aria-label:p.as.h">
       <div class="as-head">
         <div>
-          <strong>Dispute assistant</strong>
-          <span class="small" id="asSub">Resolves what it can, escalates what it can't</span>
+          <strong data-i18n="p.as.h">Dispute assistant</strong>
+          <span class="small" id="asSub" data-i18n="p.as.sub">Resolves what it can, escalates what it can't</span>
         </div>
-        <button class="icon-btn" id="closeAs" type="button" aria-label="Close assistant">
+        <button class="icon-btn" id="closeAs" type="button" aria-label="Close assistant" data-i18n-attr="aria-label:p.as.close">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
         </button>
       </div>
       <div class="as-msgs" id="asMsgs" aria-live="polite"></div>
       <div class="chips" id="asChips"></div>
       <form class="composer" id="asForm">
-        <label class="sr-only" for="asInp">Message</label>
-        <textarea id="asInp" rows="1" placeholder="Write a message…"></textarea>
-        <button class="btn btn-primary" id="asSend" type="submit">Send</button>
+        <label class="sr-only" for="asInp" data-i18n="p.as.msg">Message</label>
+        <textarea id="asInp" rows="1" placeholder="Write a message…" data-i18n-attr="placeholder:p.as.ph"></textarea>
+        <button class="btn btn-primary" id="asSend" type="submit" data-i18n="p.send">Send</button>
       </form>
     </aside>
   </div>
 </div>
 
+<script src="/assets/i18n.js"></script>
+<script src="/portal/i18n-portal.js"></script>
 <script src="/portal/portal.js"></script>
 </body>
 </html>

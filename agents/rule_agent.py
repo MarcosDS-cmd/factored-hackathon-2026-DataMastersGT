@@ -43,6 +43,8 @@ TXT = {
         "cerrado": "Tu caso {caso} ya está registrado. ¿Hay otro cargo que quieras disputar?",
         "sesion": "Tu sesión expiró por inactividad. Por seguridad, ¿me confirmas de nuevo tu número de documento y nombre completo?",
         "seleccion_invalida": "No identifiqué cuál de los cargos es. Responde con el número de la lista (1–{n}).",
+        "duplicado": "Ese cargo ya tiene una disputa abierta ({caso}). No hace falta abrir otra.",
+        "no_se_pudo": "No pude completar esa acción ({motivo}). ¿Quieres que te transfiera con un agente humano?",
     },
     "pt": {
         "pedir_id": "Claro, eu ajudo com a sua contestação. Para proteger sua conta, pode me informar o número do seu documento e seu nome completo?",
@@ -66,6 +68,8 @@ TXT = {
         "cerrado": "Seu caso {caso} já está registrado. Há outra cobrança que você queira contestar?",
         "sesion": "Sua sessão expirou por inatividade. Por segurança, pode confirmar novamente seu documento e nome completo?",
         "seleccion_invalida": "Não identifiquei qual das cobranças é. Responda com o número da lista (1–{n}).",
+        "duplicado": "Essa cobrança já tem uma contestação aberta ({caso}). Não é preciso abrir outra.",
+        "no_se_pudo": "Não consegui concluir essa ação ({motivo}). Quer que eu transfira você para um atendente humano?",
     },
     "en": {
         "pedir_id": "Happy to help with your dispute. To protect your account, could you share your document number and your full name?",
@@ -89,7 +93,15 @@ TXT = {
         "cerrado": "Your case {caso} is already registered. Is there another charge you'd like to dispute?",
         "sesion": "Your session expired due to inactivity. For your security, please sign in again.",
         "seleccion_invalida": "I couldn't tell which charge you mean. Reply with the number from the list (1–{n}).",
+        "duplicado": "That charge already has an open dispute ({caso}). There's no need to open another one.",
+        "no_se_pudo": "I couldn't complete that action ({motivo}). Would you like me to connect you with a specialist?",
     },
+}
+
+DECISION_TXT = {
+    "es": {"AUTO_APROBADO": "reembolso aprobado", "PENDIENTE_REVISION": "en revisión", "ESCALADO_A_HUMANO": "con un agente humano"},
+    "pt": {"AUTO_APROBADO": "reembolso aprovado", "PENDIENTE_REVISION": "em análise", "ESCALADO_A_HUMANO": "com um atendente humano"},
+    "en": {"AUTO_APROBADO": "refund approved", "PENDIENTE_REVISION": "under review", "ESCALADO_A_HUMANO": "with a specialist"},
 }
 
 MOTIVOS_EN = {"Amount": "amount above the limit", "Reception channel": "regulatory channel",
@@ -272,8 +284,8 @@ class AgenteReglas:
         # 3) verified: a case already open in this conversation?
         if estado.casos and not monto and not mem["candidatas"] and not mem["lista_movs"]:
             c = estado.casos[-1]
-            if nlu.get("inyeccion") or re.search(r"(aprueb|aprov|reembols|devuel|insist|por que|por que no|cambia|muda|approve|refund|why|change|reconsider)", plain):
-                return pre + tx["decision_final"].format(caso=c["caso_id"], decision=c["decision"])
+            if nlu.get("inyeccion") or re.search(r"(aprueb|aprob|aprov|reembols|devuel|insist|por que|por que no|cambia|muda|approve|refund|why|change|reconsider)", plain):
+                return pre + tx["decision_final"].format(caso=c["caso_id"], decision=DECISION_TXT[lang].get(c["decision"], c["decision"]))
             if nlu.get("intencion") not in ("Transactional",) and nlu.get("confianza", 0) >= 0.6:
                 return pre + self._no_soportado(estado, nlu, tx, lang)
             return pre + tx["cerrado"].format(caso=c["caso_id"])
@@ -329,7 +341,7 @@ class AgenteReglas:
         mem["monto"] = None
         r = dispatch_tool_call("buscar_cargo_disputado", {"customer_id": cid, "monto_aprox": monto}, estado)
         if not r.get("ok"):
-            return r.get("mensaje", "")
+            return tx["sesion"] if r.get("motivo") == "SESSION_EXPIRED" else tx["no_se_pudo"].format(motivo=r.get("motivo"))
         if not r["encontrada"]:
             estado.registrar("ambiguo", motivo="cargo_no_encontrado", monto=monto)
             return tx["no_encontrado"].format(monto=f"{monto:,.2f}")
@@ -348,7 +360,10 @@ class AgenteReglas:
                                                       "monto_usd": txn["amount_usd"], "categoria": "Transactions",
                                                       "canal_recepcion": estado.canal}, estado)
         if not r.get("ok"):
-            return r.get("mensaje", "")
+            if r.get("motivo") == "CASO_DUPLICADO":
+                caso = estado.session.casos_abiertos.get(txn["transaction_id"], "")
+                return tx["duplicado"].format(caso=caso)
+            return tx["sesion"] if r.get("motivo") == "SESSION_EXPIRED" else tx["no_se_pudo"].format(motivo=r.get("motivo"))
         mapa = {"es": MOTIVOS_ES, "pt": MOTIVOS_PT, "en": MOTIVOS_EN}[lang]
         motivos = ", ".join(next((v for k, v in mapa.items() if m.startswith(k)), m) for m in r["motivos_escalacion"])
         return tx[r["decision"]].format(caso=r["caso_id"], monto=_fmt_monto(r["monto_usd"]),

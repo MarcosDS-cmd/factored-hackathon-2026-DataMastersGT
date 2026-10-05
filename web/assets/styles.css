@@ -115,7 +115,7 @@ p { margin: 0; text-wrap: pretty; }
 .st-row .d { color: var(--ink-3); font-size: .85rem; }
 .st-row .a { font-variant-numeric: tabular-nums; font-weight: 500; }
 .st-row.flag { background: var(--esc-wash); }
-.st-row.flag .m::after { content: "No lo reconozco"; display: inline-block; white-space: nowrap; margin-left: 10px; font-size: .75rem; font-weight: 600; color: var(--esc); background: var(--sheet); border: 1px solid currentColor; border-radius: 999px; padding: 2px 8px; vertical-align: 1px; }
+.st-row.flag .m::after { content: var(--flag-text, "I don't recognize it"); display: inline-block; white-space: nowrap; margin-left: 10px; font-size: .75rem; font-weight: 600; color: var(--esc); background: var(--sheet); border: 1px solid currentColor; border-radius: 999px; padding: 2px 8px; vertical-align: 1px; }
 .st-trace { border-top: 1px dashed var(--rule); margin: 4px 22px 0; padding: 12px 0 4px; display: grid; gap: 6px; min-height: 132px; }
 .tr-step { display: grid; grid-template-columns: 18px 1fr auto; gap: 10px; align-items: center; font: 500 .82rem/1.3 var(--f-mono); color: var(--ink-2); opacity: 0; transform: translateY(4px); transition: opacity .3s, transform .3s; }
 .tr-step.on { opacity: 1; transform: none; }
@@ -327,3 +327,14 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 16px 40px; justify-content: 
 /* English subtitles under demo chat messages */
 .msg .sub-en { display: block; margin-top: 6px; padding-top: 6px; border-top: 1px dashed currentColor; font-size: .8rem; line-height: 1.4; font-style: italic; opacity: .72; border-top-color: color-mix(in oklab, currentColor 30%, transparent); }
 .msg .sub-en::before { content: "EN · "; font-style: normal; font-weight: 600; letter-spacing: .04em; font-size: .68rem; }
+
+/* language switcher (ES | EN | PT) */
+.lang-switch { display: inline-flex; border: 1px solid var(--rule); border-radius: 999px; padding: 2px; flex: none; }
+.lang-switch button { border: 0; background: transparent; color: var(--ink-2); font: 600 .74rem/1 var(--f-body); letter-spacing: .02em;
+  padding: 6px 8px; border-radius: 999px; cursor: pointer; min-width: 30px; }
+.lang-switch button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.lang-switch button:hover:not([aria-pressed="true"]) { color: var(--ink); }
+/* English subtitles in the demo chat are only shown when the page is in English */
+html:not([lang="en"]) .msg .sub-en { display: none; }
+.top .lang-switch { margin-left: 4px; }
+@media (max-width: 860px) { .top .lang-switch { margin-left: auto; } .theme-btn { margin-left: 0; } }

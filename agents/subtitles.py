@@ -17,7 +17,7 @@ from __future__ import annotations
 import os
 import re
 
-from rule_agent import TXT, TIPOS, MOTIVOS_ES, MOTIVOS_PT, MOTIVOS_EN, INTENT_ES, INTENT_PT, INTENT_EN
+from rule_agent import TXT, TIPOS, MOTIVOS_ES, MOTIVOS_PT, MOTIVOS_EN, INTENT_ES, INTENT_PT, INTENT_EN, DECISION_TXT
 
 # ---------------------------------------------------------------------------
 # Agent replies: reverse-match templates
@@ -71,6 +71,9 @@ def _fill(key: str, g: dict, lg: str) -> str:
         g["lista"] = _lista(g["lista"], lg)
     if "comercio" in g:
         g["comercio"] = _desc(g["comercio"], lg)
+    if "decision" in g:
+        inv = {v: k for k, v in DECISION_TXT[lg].items()}
+        g["decision"] = DECISION_TXT["en"].get(inv.get(g["decision"], ""), g["decision"])
     return TXT["en"][key].format(**g)
 
 

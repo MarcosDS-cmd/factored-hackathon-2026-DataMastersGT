@@ -120,3 +120,8 @@ body.portal { overflow-x: hidden; }
   .btn.sm { padding: 7px 11px; font-size: .82rem; }
   #helpBtn { margin-left: auto; }
 }
+
+/* language switcher on the sign-in screen */
+.login-lang { align-self: flex-end; }
+@media (max-width: 900px) { .login-lang { align-self: flex-start; } }
+.app .top .lang-switch { margin-left: 0; }
