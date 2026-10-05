@@ -1,4 +1,4 @@
-/* DataMasters Bank — customer portal (demo). Talks to /api/portal/*; the API key never reaches the browser. */
+/* LATAM Bank — customer portal (demo). Talks to /api/portal/*; the API key never reaches the browser. */
 (() => {
 "use strict";
 const $ = (s, r = document) => r.querySelector(s);
@@ -70,7 +70,7 @@ $("#loginForm").addEventListener("submit", async (ev) => {
 function showLogin(msg) {
   $("#viewApp").hidden = true; $("#viewLogin").hidden = false;
   if (msg) { $("#loginError").textContent = msg; $("#loginError").hidden = false; }
-  document.title = "DataMasters Bank · Online banking (demo)";
+  document.title = "LATAM Bank · Online banking (demo)";
 }
 $("#logoutBtn").addEventListener("click", async () => { try { await api("/api/portal/logout", { method: "POST" }); } catch (e) {} saveToken(null); VIEW = null; $("#asMsgs").innerHTML = ""; showLogin(); });
 
@@ -92,7 +92,7 @@ const desc = (t) => t.merchant_name || `${TYPE[t.transaction_type] || t.transact
 function showApp(first) {
   $("#viewLogin").hidden = true; $("#viewApp").hidden = false;
   const c = VIEW.customer;
-  document.title = "Your account · DataMasters Bank (demo)";
+  document.title = "Your account · LATAM Bank (demo)";
   $("#hello").textContent = `Hi, ${(c.first_name || "").split(" ")[0]}`;
   $("#helloSub").textContent = `${c.first_name} ${c.last_name || ""} · ${c.segment} customer · ${c.country}`;
   const llm = VIEW.engine && VIEW.engine !== "reglas";
